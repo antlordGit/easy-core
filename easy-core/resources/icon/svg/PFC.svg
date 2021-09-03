@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="图层_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 15 13" style="enable-background:new 0 0 15 13;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#FF5B14;}
+	.st1{fill:#FFFFFF;}
+	.st2{fill:#FF5B14;stroke:#FF5B14;stroke-width:0.2;stroke-miterlimit:10;}
+	.st3{font-family:'ArialMT';}
+	.st4{font-size:8px;}
+	.st5{font-size:9px;}
+	.st6{fill:#FF5B14;stroke:#FF5B14;stroke-width:0.25;stroke-miterlimit:10;}
+</style>
+<g>
+<!--	<circle class="st0" cx="7" cy="7" r="6"/>-->
+	<path class="st0" d="M13.7,11H1.3C0.58,11,0,10.42,0,9.7V2.53c0-0.72,0.58-1.3,1.3-1.3H13.7c0.72,0,1.3,0.58,1.3,1.3V9.7
+	C15,10.42,14.42,11,13.7,11z"/>
+</g>
+	<path class="st1" d="M12.56,10H2.44C1.64,10,1,9.36,1,8.56V3.68c0-0.79,0.64-1.44,1.44-1.44h10.12c0.79,0,1.44,0.64,1.44,1.44v4.88
+C14,9.36,13.36,10,12.56,10z"/>
+<text transform="matrix(1 0 0 1 1.5398 8.4768)" class="st2 st3 st4">p</text>
+<text transform="matrix(1 0 0 1 6.3469 9.9128)" class="st2 st3 st5">f</text>
+<text transform="matrix(1 0 0 1 9.1135 8.2942)" class="st6 st3 st4">c</text>
+</svg>
