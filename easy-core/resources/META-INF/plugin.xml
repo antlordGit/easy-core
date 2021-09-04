@@ -15,17 +15,121 @@
 
   <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
   <idea-version since-build="173.0"/>
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.modules.java</depends>
 
   <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
        on how to target different products -->
   <depends>com.intellij.modules.platform</depends>
 
   <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
+    <projectService serviceInterface="com.easy.core.service.AddClassCommentMenuService" serviceImplementation="com.easy.core.service.impl.AddClassCommentMenuServiceImpl"/>
+    <projectService serviceInterface="com.easy.core.service.HumpNamingMenuService" serviceImplementation="com.easy.core.service.impl.HumpNamingMenuServiceImpl"/>
+    <projectService serviceInterface="com.easy.core.service.JsonFormatMenuService" serviceImplementation="com.easy.core.service.impl.JsonFormatMenuServiceImpl"/>
+    <projectService serviceInterface="com.easy.core.service.SqlFormatterMenuService" serviceImplementation="com.easy.core.service.impl.SqlFormatterMenuServiceImpl"/>
+    <projectService serviceInterface="com.easy.core.service.ExecuteSqlService" serviceImplementation="com.easy.core.service.impl.ExecuteSqlServiceImpl"/>
+    <projectService serviceInterface="com.easy.core.service.RestServiceService" serviceImplementation="com.easy.core.service.impl.RestServiceServiceImpl"/>
+    <projectService serviceInterface="com.easy.core.service.SqlFormatterService" serviceImplementation="com.easy.core.service.impl.SqlFormatterServiceImpl"/>
+    <projectService serviceInterface="com.easy.core.service.JsonFormatterService" serviceImplementation="com.easy.core.service.impl.JsonFormatterServiceImpl"/>
+    <projectService serviceInterface="com.easy.core.service.CopyFullUrlService" serviceImplementation="com.easy.core.service.impl.CopyFullUrlServiceImpl"/>
+    <toolWindow factoryClass="com.easy.core.ui.EasyFrameFactory" anchor="bottom" id="EasyTool" doNotActivateOnStart="true" icon="/icon/svg/toolWindow.svg"/>
+    <applicationService serviceImplementation="com.easy.core.storage.EasyState"/>
+    <codeInsight.lineMarkerProvider language="JAVA" implementationClass="com.easy.core.install.JavaToXmlProvider"/>
+    <codeInsight.lineMarkerProvider language="XML" implementationClass="com.easy.core.install.XmlToJavaProvider"/>
+    <consoleFilterProvider implementation="com.easy.core.install.MainConsoleFilterProvider"/>
+    <runLineMarkerContributor language="XML" implementationClass="com.easy.core.install.MybatisXmlContributor"/>
+    <gotoDeclarationHandler implementation="com.easy.core.install.XmlTagJumpDeclarationHandler"/>
+
+    <fileTypeFactory implementation="com.easy.core.fileType.api.ApiFileTypeFactory"/>
+    <runLineMarkerContributor language="api" implementationClass="com.easy.core.install.ApiRunLineMarkerContributor"/>
+    <lang.parserDefinition language="api" implementationClass="com.easy.core.fileType.api.ApiParserDefinition"/>
   </extensions>
 
+  <application-components>
+    <component>
+      <implementation-class>com.easy.core.ui.component.NyanApplicationComponent</implementation-class>
+    </component>
+  </application-components>
+
   <actions>
-    <!-- Add your actions here -->
+
+    <group id="Easy-Core-id" text="EasyCore" popup="true">
+      <add-to-group group-id="MainMenu" anchor="last"/>
+    </group>
+
+    <group id="consoleToolActionId" text="ConsoleToolAction" popup="true"/>
+    <group id="rest_tool_bar_id" popup="true"/>
+    <group id="Execute Tool Bar action" popup="true"/>
+    <group id="toolWindowRestServicePopupMenu" popup="true" text="RestServicePopupMenu"/>
+
+    <action id="AddClassCommentId" class="com.easy.core.action.menu.AddClassCommentMenuAction" text="AddClassComment" description="AddClassCommentAction">
+      <add-to-group group-id="Easy-Core-id"/>
+    </action>
+
+    <action id="BackgroundMenuActionId" class="com.easy.core.action.menu.BackgroundMenuAction" text="background" description="BackgroundMenuAction">
+      <add-to-group group-id="Easy-Core-id"/>
+    </action>
+
+    <action id="HumpNamingMenuActionId" class="com.easy.core.action.menu.HumpNamingMenuAction" text="HumpNaming" description="HumpNamingMenuAction">
+      <add-to-group group-id="Easy-Core-id"/>
+      <keyboard-shortcut first-keystroke="alt 3" keymap="$default"/>
+    </action>
+
+    <action id="JsonFormatMenuActionId" class="com.easy.core.action.menu.JsonFormatMenuAction" text="JsonFormat" description="JsonFormatMenuAction">
+      <add-to-group group-id="Easy-Core-id"/>
+      <keyboard-shortcut first-keystroke="alt s" keymap="$default"/>
+    </action>
+
+    <action id="SqlFormatterMenuActionId" class="com.easy.core.action.menu.SqlFormatterMenuAction" text="SqlFormatter" description="SqlFormatterMenuAction">
+      <add-to-group group-id="Easy-Core-id"/>
+    </action>
+    <!--      执行sql语句    -->
+    <action id="ExecuteSqlId" class="com.easy.core.action.function.ExecuteSqlAction" text="ExecuteSql"
+            description="ExecuteSqlAction" >
+      <add-to-group group-id="Execute Tool Bar action"/>
+    </action>
+    <!--      刷新项目mapping地址显示-->
+    <action id="RestServiceId" class="com.easy.core.action.function.RestServiceAction" text="RefreshRestService" description="RestServiceAction">
+      <add-to-group group-id="rest_tool_bar_id"/>
+    </action>
+    <action id="RestServiceGotoId" class="com.easy.core.action.function.RestServiceGotoAction" text="RestServiceGoto" description="RestServiceGotoAction" icon="/icon/svg/search.svg">
+      <add-to-group group-id="rest_tool_bar_id"/>
+    </action>
+
+    <!--      重跑请求-->
+    <action id="ConsoleRerunActionId" class="com.easy.core.action.function.ConsoleRerunAction" text="RerunHttp" description="ConsoleRerunAction">
+      <add-to-group group-id="NavBarToolBar"/>
+      <add-to-group group-id="consoleToolActionId"/>
+    </action>
+
+    <action id="SqlFormatterActionId" class="com.easy.core.action.function.SqlFormatterAction" text="SqlFormatter"
+            description="SqlFormatterAction">
+      <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+      <add-to-group group-id="ConsoleEditorPopupMenu" anchor="last"/>
+    </action>
+
+    <action id="JsonFormatterId" class="com.easy.core.action.function.JsonFormatterAction" text="JsonFormatter"
+            description="JsonFormatterAction">
+      <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+      <!--        控制台右键-->
+      <add-to-group group-id="ConsoleEditorPopupMenu" anchor="last"/>
+    </action>
+
+    <action id="CopyFullUrlActionId" class="com.easy.core.action.function.CopyFullUrlAction" text="CopyFullUrl"
+            description="CopyFullUrlAction">
+      <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+      <add-to-group group-id="toolWindowRestServicePopupMenu"/>
+    </action>
+
+    <action id="CopyParamJsonActionId" class="com.easy.core.action.function.CopyParamJsonAction" text="CopyParamJson"
+            description="CopyParamJson">
+      <add-to-group group-id="toolWindowRestServicePopupMenu"/>
+    </action>
+
+    <action id="ExecuteXmlSqlActionId" class="com.easy.core.action.function.ExecuteXmlSqlAction" text="executeSql"
+            description="ExecuteXmlSqlAction" >
+    </action>
+
   </actions>
 
 </idea-plugin>
