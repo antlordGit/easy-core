@@ -96,58 +96,14 @@ public class HttpRequestUtil {
         }
     }
 
-    public static void post(String url, List<EasyHeader> headerList, String params, Project project) throws JSONException {
-//        new Thread(() -> {
-//            CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-//            String param = params.trim();
-//            String formatJson;
-//            try {
-//                formatJson = buildParam(param);
-//            } catch (RuntimeException e) {
-//                ApiResponseConsoleFrame.INSTANCE.consolePrint(e.getMessage());
-//                return;
-//            }
-//            StringEntity entity = new StringEntity(formatJson, "UTF-8");
-//            HttpPost httpPost = new HttpPost(url);
-//            httpPost.setEntity(entity);
-//
-//            if (CollectionUtils.isNotEmpty(headerList)) {
-//                for (EasyHeader easyHeader : headerList) {
-//                    httpPost.setHeader(easyHeader.getName(), easyHeader.getValue());
-//                }
-//            }
-//
-//            CloseableHttpResponse response = null;
-//            try {
-//                RequestConfig requestConfig = getRequestConfig();
-//                httpPost.setConfig(requestConfig);
-//
-//                response = httpClient.execute(httpPost);
-//                dealResponse(response, url);
-//            } catch (Exception e) {
-//                ApiResponseConsoleFrame.INSTANCE.consolePrint(e.getMessage());
-//            } finally {
-//                try {
-//                    // 释放资源
-//                    if (httpClient != null) {
-//                        httpClient.close();
-//                    }
-//                    if (response != null) {
-//                        response.close();
-//                    }
-//                } catch (IOException e) {
-//                    ApiResponseConsoleFrame.INSTANCE.consolePrint(e.getMessage());
-//                }
-//            }
-//        }).start();
-
+    public static void post(String url, List<EasyHeader> headerList, String params, Project project){
         ApiResponseConsoleFrame apiConsole = (ApiResponseConsoleFrame) EasyFrameFactory.getComponent("ApiConsole", project);
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         String param = params.trim();
         String formatJson;
         try {
             formatJson = buildParam(param);
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             apiConsole.consolePrint(e.getMessage(), project);
             return;
         }
