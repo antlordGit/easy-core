@@ -43,13 +43,23 @@
     <fileTypeFactory implementation="com.easy.core.fileType.api.ApiFileTypeFactory"/>
     <runLineMarkerContributor language="api" implementationClass="com.easy.core.install.ApiRunLineMarkerContributor"/>
     <lang.parserDefinition language="api" implementationClass="com.easy.core.fileType.api.ApiParserDefinition"/>
+    <completion.contributor language="api" implementationClass="com.easy.core.install.MybatisXmlCompletionContributor"/>
   </extensions>
 
   <application-components>
     <component>
       <implementation-class>com.easy.core.ui.component.NyanApplicationComponent</implementation-class>
     </component>
+<!--    <component>-->
+<!--      <implementation-class>com.easy.core.listener.DocumentListener</implementation-class>-->
+<!--    </component>-->
   </application-components>
+
+  <project-components>
+    <component>
+      <implementation-class>com.easy.core.listener.DocumentListener</implementation-class>
+    </component>
+  </project-components>
 
   <actions>
 

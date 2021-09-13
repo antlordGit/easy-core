@@ -116,4 +116,12 @@ public class EasyStorage {
         PropertiesComponent.getInstance().setValue("sqmCookie", sqmCookie);
     }
 
+    public static void setMybatisXmlFiled(String filedList) {
+        PropertiesComponent.getInstance().setValue("mybatisFiled", filedList);
+    }
+
+    public static String getMybatisXmlFiled() {
+        return PropertiesComponent.getInstance().getValue("mybatisFiled");
+    }
+
 }
