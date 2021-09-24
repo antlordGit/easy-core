@@ -124,4 +124,16 @@ public class EasyStorage {
         return PropertiesComponent.getInstance().getValue("mybatisFiled");
     }
 
+    public static void setCurrentFile(String filePath) {
+        PropertiesComponent.getInstance().setValue("currentFilePath", filePath);
+    }
+    public static String gettCurrentFile() {
+        return PropertiesComponent.getInstance().getValue("currentFilePath");
+    }
+    public static void setLogoShow(boolean showFlag) {
+        PropertiesComponent.getInstance().setValue("logoShowFlag", showFlag);
+    }
+    public static boolean getLogoShow() {
+        return PropertiesComponent.getInstance().getBoolean("logoShowFlag");
+    }
 }

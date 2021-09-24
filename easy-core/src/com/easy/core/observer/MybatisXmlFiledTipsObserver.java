@@ -1,53 +1,68 @@
 package com.easy.core.observer;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.easy.core.storage.EasyStorage;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.apache.commons.collections.CollectionUtils;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
-
-import java.io.File;
-import java.util.Iterator;
 
 public class MybatisXmlFiledTipsObserver implements EasyObserver{
 
 
     @Override
     public void observer(String action, VirtualFile virtualFile) {
-        if (!"open".equals(action)) {
-            return;
-        }
-        if (!"XML".equals(virtualFile.getFileType().getName())) {
-            return;
-        }
-
-        String mybatisXmlFiled = EasyStorage.getMybatisXmlFiled();
-        JSONArray jsonArray = JSON.parseArray(mybatisXmlFiled);
-        if (CollectionUtils.isNotEmpty(jsonArray)) {
-            if (5 == jsonArray.size()) {
-                jsonArray.remove(0);
-            }
+        switch (action) {
+            case "open":
+                open(virtualFile);
+                break;
+            default:
+                break;
         }
 
-        SAXReader reader = new SAXReader();
-        try {
+    }
 
-            Document document = reader.read(new File(virtualFile.getPath()));
-            Element bookstore = document.getRootElement();
-            Iterator storeit = bookstore.elementIterator();
-
-            while(storeit.hasNext()){
-                Object next = storeit.next();
-
-            }
-        } catch (DocumentException e) {
-
-            e.printStackTrace();
-        }
-
+    private boolean open(VirtualFile virtualFile) {
+//        if (!"XML".equals(virtualFile.getFileType().getName())) {
+//            return false;
+//        }
+//
+//        VirtualFile[] openFiles = DocumentListener.openFiles;
+//        List<VirtualFile> xmlList = Stream.of(openFiles).filter(p -> p.getFileType().getName().equals("XML")).collect(Collectors.toList());
+//        if (CollectionUtils.isEmpty(xmlList)) {
+//            return false;
+//        }
+//        JSONObject classJson = new JSONObject();
+//        for (VirtualFile file : xmlList) {
+//            SAXReader reader = new SAXReader();
+//            try {
+//                Document document = reader.read(new File(file.getPath()));
+//                Element bookstore = document.getRootElement();
+//
+//                String namespace = bookstore.attribute("namespace").getText();
+//                PsiClass aClass = JavaFileManager.getInstance(DocumentListener.project).findClass(namespace, GlobalSearchScope.projectScope(DocumentListener.project));
+//                if (null != aClass) {
+//                    PsiMethod[] allMethods = aClass.getMethods();
+//                    Map<String, List<String>> collect1 = Stream.of(allMethods).collect(Collectors.toMap(
+//                            PsiMethod::getName,
+//                            p -> {
+//                        JvmParameter[] parameters = p.getParameters();
+//                        if (0 == parameters.length) {
+//                            return Lists.newArrayList();
+//                        }
+//                        List<String> collect = Stream.of(parameters).map(t -> {
+//                            JvmAnnotation annotation = t.getAnnotation("org.apache.ibatis.annotations.Param");
+//                            if (null == annotation) {
+//                                return t.getName();
+//                            } else {
+//                                return (String)((JvmAnnotationConstantValue) allMethods[1].getParameters()[0].getAnnotation("org.apache.ibatis.annotations.Param").getAttributes().get(0).getAttributeValue()).getConstantValue();
+//                            }
+//                        }).collect(Collectors.toList());
+//                        return collect;
+//                    }));
+//                    classJson.put(namespace, collect1);
+//                    EasyStorage.setMybatisXmlFiled(classJson.toJSONString());
+//                }
+//            } catch (Exception e) {
+////                e.printStackTrace();
+//                System.out.println("===============>MybatisXmlFiledTipsObserver.open");
+//            }
+//        }
+        return true;
     }
 }
