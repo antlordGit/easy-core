@@ -47,12 +47,8 @@ public class ShowLogoInEditorMenuServiceImpl implements ShowLogoInEditorMenuServ
 
             JLabel logoCenter = new JLabel();
             logoCenter.setForeground(new Color(0, 255, 0));
-            logoCenter.setText("<html>\n" +
-                    "<body>\n" +
-                    "<p style=\"font-family: 微软雅黑;font-size: 20pt;font-weight: bold;color: yellow;\">中科闻歌</p>\n" +
-                    "<p style=\"font-family: 微软雅黑;font-size: 60pt;font-weight: bold;\">陈志伟</p>\n" +
-                    "</body>\n" +
-                    "</html>");
+            logoCenter.setFont(new Font("微软雅黑", Font.BOLD, 60));
+            logoCenter.setText("陈志伟");
 
             // 获取当前光标的位置
             contentComponent.setLayout(new FlowLayout(FlowLayout.LEFT, 1000, 30));

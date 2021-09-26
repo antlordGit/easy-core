@@ -35,14 +35,14 @@ public class DocumentListener implements FileEditorManagerListener, ProjectCompo
     @Override
     public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
         if (CollectionUtils.isNotEmpty(observerList)) {
-            observerList.forEach(observer -> observer.observer("open", file));
+            observerList.forEach(observer -> observer.observer("fileClosed", file));
         }
     }
 
     @Override
     public void selectionChanged(@NotNull FileEditorManagerEvent event) {
         if (CollectionUtils.isNotEmpty(observerList)) {
-            observerList.forEach(observer -> observer.observer("open", null));
+            observerList.forEach(observer -> observer.observer("selectionChanged", null));
         }
     }
 

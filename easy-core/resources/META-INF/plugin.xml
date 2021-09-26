@@ -2,7 +2,7 @@
   <id>com.your.antlord.easy-core.plugin.id</id>
   <name>EasyCore</name>
   <version>1.0</version>
-  <vendor email="czwilxz@qq.com" url="http://www.yourcompany.com">Antlrod</vendor>
+  <vendor email="czwilxz@qq.com" url="https://www.wengegroup.com/">中科闻歌</vendor>
 
   <description><![CDATA[
       待补充待补充待补充待补充待补充待补充待补充待补充待补充待补充待补充待补充待补充待补充待补充
@@ -47,11 +47,13 @@
     <runLineMarkerContributor language="api" implementationClass="com.easy.core.install.ApiRunLineMarkerContributor"/>
     <lang.parserDefinition language="api" implementationClass="com.easy.core.fileType.api.ApiParserDefinition"/>
     <completion.contributor language="XML" implementationClass="com.easy.core.install.MybatisXmlCompletionContributor" id="MybatisXmlCompletionContributor"/>
+
   </extensions>
+
 
   <applicationListeners>
 <!--    <listener class="com.easy.core.listener.MyDynamicPluginListener" topic="com.intellij.ide.plugins.DynamicPluginListener" />-->
-<!--    <listener class="com.easy.core.listener.MyProjectManagerListener" topic="com.intellij.openapi.project.ProjectManagerListener" />-->
+    <listener class="com.easy.core.listener.MyProjectManagerListener" topic="com.intellij.openapi.project.ProjectManagerListener" />
   </applicationListeners>
 
   <projectListeners>
@@ -159,6 +161,10 @@
     <action id="ShowLogoInEditorMenuActionId" class="com.easy.core.action.menu.ShowLogoInEditorMenuAction" text="ShowLogo">
       <add-to-group group-id="Easy-Core-id" anchor="last"/>
     </action>
+
+<!--    <action id="GlanceCodeMenuActionId" class="com.easy.core.action.menu.GlanceCodeMenuAction" text="ShowGlance">-->
+<!--      <add-to-group group-id="Easy-Core-id" anchor="last"/>-->
+<!--    </action>-->
 
   </actions>
 
