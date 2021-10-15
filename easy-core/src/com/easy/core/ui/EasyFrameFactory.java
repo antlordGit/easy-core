@@ -2,6 +2,7 @@ package com.easy.core.ui;
 
 import com.easy.core.icons.EasyIcon;
 import com.easy.core.ui.frame.DatabaseFrame;
+import com.easy.core.ui.frame.GeneratorFrame;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -17,15 +18,17 @@ public class EasyFrameFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 //        ApiResponseConsoleFrame apiResponseConsoleFrame = getConsoleFrame(project);
-
+        GeneratorFrame generatorFrame = new GeneratorFrame();
 //        RestUrlJframe restUrlJframe = new RestUrlJframe();
         DatabaseFrame databaseFrame = new DatabaseFrame();
 //        Content restServiceContent = toolWindow.getContentManager().getFactory().createContent(restUrlJframe, "RestService", false);
 //        Content apiConsoleContent = toolWindow.getContentManager().getFactory().createContent(apiResponseConsoleFrame, "ApiConsole", false);
         Content databaseContent = toolWindow.getContentManager().getFactory().createContent(databaseFrame, "Database", false);
+        Content generatorContent = toolWindow.getContentManager().getFactory().createContent(generatorFrame, "Generator", false);
 //        toolWindow.getContentManager().addContent(restServiceContent);
 //        toolWindow.getContentManager().addContent(apiConsoleContent);
         toolWindow.getContentManager().addContent(databaseContent);
+        toolWindow.getContentManager().addContent(generatorContent);
         toolWindow.setTitle("EasyTool");
         toolWindow.setType(ToolWindowType.DOCKED, null);
         toolWindow.setIcon(EasyIcon.TOOL_WINDOW);

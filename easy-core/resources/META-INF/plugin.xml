@@ -54,6 +54,7 @@
   <applicationListeners>
 <!--    <listener class="com.easy.core.listener.MyDynamicPluginListener" topic="com.intellij.ide.plugins.DynamicPluginListener" />-->
     <listener class="com.easy.core.listener.MyProjectManagerListener" topic="com.intellij.openapi.project.ProjectManagerListener" />
+<!--    <listener class="com.easy.core.listener.FileEditorListener" topic="com.intellij.openapi.editor.event.VisibleAreaListener" />-->
   </applicationListeners>
 
   <projectListeners>
@@ -165,6 +166,10 @@
 <!--    <action id="GlanceCodeMenuActionId" class="com.easy.core.action.menu.GlanceCodeMenuAction" text="ShowGlance">-->
 <!--      <add-to-group group-id="Easy-Core-id" anchor="last"/>-->
 <!--    </action>-->
+
+    <action id="TranslationMenuActionId" class="com.easy.core.action.menu.TranslationMenuAction" text="TranslationMenuAction">
+      <add-to-group group-id="Easy-Core-id" anchor="last"/>
+    </action>
 
   </actions>
 

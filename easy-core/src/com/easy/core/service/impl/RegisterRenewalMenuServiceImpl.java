@@ -30,6 +30,8 @@ public class RegisterRenewalMenuServiceImpl implements RegisterRenewalMenuServic
 //                            long start = ~dis.readLong();
 //                            Date expireDate = new Date(start + 2592000000L);
 //                            System.out.println("==========" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(expireDate));
+                            System.out.println("===" + file.getAbsolutePath() + "\\" + file.getName());
+                            // C:\Users\陈志伟\AppData\Local\JetBrains\IntelliJIdea2020.2\plugins-sandbox\config\eval\idea202.evaluation.key\idea202.evaluation.key
                             dos = new DataOutputStream(new FileOutputStream(file));
                             dos.writeLong(~System.currentTimeMillis());
 //                            dis.close();

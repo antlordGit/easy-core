@@ -128,12 +128,21 @@ public class MybatisXmlCompletionContributor extends CompletionContributor imple
     }
 
     private void beforeCompletion() {
-        if (null == DocumentListener.project) {
-            return;
+        List<VirtualFile> xmlList = null;
+        try {
+            if (null == DocumentListener.project) {
+                return;
+            }
+            VirtualFile[] openFiles = FileEditorManager.getInstance(DocumentListener.project).getOpenFiles();
+            xmlList = Stream.of(openFiles).filter(p -> p.getFileType().getName().equals("XML")).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(xmlList)) {
+                return;
+            }
+        } catch (Exception e) {
+            System.out.println("====--=dd");
         }
-        VirtualFile[] openFiles = FileEditorManager.getInstance(DocumentListener.project).getOpenFiles();
-        List<VirtualFile> xmlList = Stream.of(openFiles).filter(p -> p.getFileType().getName().equals("XML")).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(xmlList)) {
+
+        if (null == xmlList) {
             return;
         }
         JSONObject classJson = new JSONObject();
