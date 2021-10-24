@@ -46,7 +46,7 @@ public class GeneratorFrame extends JBPanel {
         root = new JBPanel(new BorderLayout());
         add(root);
         GridLayout gridLayout = new GridLayout(5, 2);
-        gridLayout.setVgap(50);
+        gridLayout.setVgap(10);
         gridLayout.setHgap(10);
         parentPanel = new JBPanel(gridLayout);
         JBScrollPane scrollPane = new JBScrollPane(parentPanel);
