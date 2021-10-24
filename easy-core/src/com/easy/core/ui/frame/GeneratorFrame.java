@@ -11,11 +11,16 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
+import com.intellij.util.ui.UIUtil;
 import org.apache.commons.compress.utils.Lists;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -41,9 +46,9 @@ public class GeneratorFrame extends JBPanel {
         root = new JBPanel(new BorderLayout());
         add(root);
         GridLayout gridLayout = new GridLayout(5, 2);
-        gridLayout.setVgap(20);
-        gridLayout.setHgap(20);
-        parentPanel = new JBPanel(new GridLayout(5, 2));
+        gridLayout.setVgap(50);
+        gridLayout.setHgap(10);
+        parentPanel = new JBPanel(gridLayout);
         JBScrollPane scrollPane = new JBScrollPane(parentPanel);
         root.add(scrollPane);
 
@@ -51,6 +56,7 @@ public class GeneratorFrame extends JBPanel {
     }
 
     private void initUI() {
+        Color labelBackground = UIUtil.getLabelBackground();
         JPanel db = new JPanel(new BorderLayout());
         db.add(new JLabel("数据库链接"), BorderLayout.WEST);
         db.add(dbUrl = new JTextField("数据库链接串"), BorderLayout.CENTER);
@@ -76,6 +82,7 @@ public class GeneratorFrame extends JBPanel {
         panel4.add(mapperPath = new JTextField("mapper路径"), BorderLayout.CENTER);
         mapperPath.setMaximumSize(new Dimension(100, 50));
         Button button1 = new Button("浏览");
+        button1.setBackground(labelBackground);
         button1.addActionListener(e->{
             final FileChooserDescriptor xmlDescriptor = FileChooserDescriptorFactory.createSingleFileDescriptor();
             xmlDescriptor.setTitle("Choose Path");
@@ -91,6 +98,7 @@ public class GeneratorFrame extends JBPanel {
         panel5.add(new JLabel("xml路径"), BorderLayout.WEST);
         panel5.add(xmlPath = new JTextField("xml路径"), BorderLayout.CENTER);
         Button button2 = new Button("浏览");
+        button2.setBackground(labelBackground);
         button2.addActionListener(e->{
             final FileChooserDescriptor xmlDescriptor = FileChooserDescriptorFactory.createSingleFileDescriptor();
             xmlDescriptor.setTitle("Choose Path");
@@ -106,6 +114,7 @@ public class GeneratorFrame extends JBPanel {
         panel6.add(new JLabel("service路径"), BorderLayout.WEST);
         panel6.add(servicePath = new JTextField("service路径"), BorderLayout.CENTER);
         Button button3 = new Button("浏览");
+        button3.setBackground(labelBackground);
         button3.addActionListener(e->{
             final FileChooserDescriptor xmlDescriptor = FileChooserDescriptorFactory.createSingleFileDescriptor();
             xmlDescriptor.setTitle("Choose Path");
@@ -121,6 +130,7 @@ public class GeneratorFrame extends JBPanel {
         panel7.add(new JLabel("controller路径"), BorderLayout.WEST);
         panel7.add(controllerPath = new JTextField("controller路径"), BorderLayout.CENTER);
         Button button4 = new Button("浏览");
+        button4.setBackground(labelBackground);
         button4.addActionListener(e->{
             final FileChooserDescriptor xmlDescriptor = FileChooserDescriptorFactory.createSingleFileDescriptor();
             xmlDescriptor.setTitle("Choose Path");
@@ -138,6 +148,7 @@ public class GeneratorFrame extends JBPanel {
         panel8.add(new JLabel("pojo路径"), BorderLayout.WEST);
         panel8.add(pojoPath = new JTextField("pojo路径"), BorderLayout.CENTER);
         Button button5 = new Button("浏览");
+        button5.setBackground(labelBackground);
         button5.addActionListener(e->{
             final FileChooserDescriptor xmlDescriptor = FileChooserDescriptorFactory.createSingleFileDescriptor();
             xmlDescriptor.setTitle("Choose Path");
@@ -149,12 +160,15 @@ public class GeneratorFrame extends JBPanel {
         panel8.add(button5, BorderLayout.EAST);
         parentPanel.add(panel8);
 
+        JPanel panel10 = new JPanel(new BorderLayout());
         Button button = new Button("创建文件");
+        button.setBackground(labelBackground);
         button.addActionListener((e) -> {
             generator();
-            Messages.showInfoMessage("代码已生成", "代码生成提示");
+            Messages.showInfoMessage("代码已生成,请刷新编译器", "代码生成提示");
         });
-        parentPanel.add(button);
+        panel10.add(button, BorderLayout.WEST);
+        parentPanel.add(panel10);
     }
 
     private void generator() {
@@ -488,31 +502,32 @@ public class GeneratorFrame extends JBPanel {
                     "public class " + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "POJO" + " implements Serializable {";
             StringBuilder sb = new StringBuilder(text);
 
-//            Connection conn = DriverManager.getConnection(dbUrl.getText(), dbUser.getText(), dbPassword.getText());
-//            Statement stmt = conn.createStatement();
-//            ResultSet resultSet = stmt.executeQuery("select  table_name,column_name,column_type, column_comment,table_comment from information_schema.columns where table_schema ='表所在的库'  and table_name = '要查看的表名' ;" + dbTabel.getText());
-//            int columnCount = resultSet.getMetaData().getColumnCount();
-//            List<String> titleList = Lists.newArrayList();
+            Connection conn = DriverManager.getConnection(dbUrl.getText(), dbUser.getText(), dbPassword.getText());
+            Statement stmt = conn.createStatement();
+            ResultSet resultSet = stmt.executeQuery("select  table_name,column_name,column_type, column_comment,table_comment from information_schema.columns where table_schema ='表所在的库'  and table_name = '要查看的表名' ;" + dbTabel.getText());
+            int columnCount = resultSet.getMetaData().getColumnCount();
+            List<String> titleList = Lists.newArrayList();
             List<List<String>> dataList = Lists.newArrayList();
-//            for (int i = 1; i <= columnCount; i++) {
-//                titleList.add(resultSet.getMetaData().getColumnName(i));
-//            }
-//            //获取查询结果
-//            int rowNum = 0;
-//            while (resultSet.next()) {
-//                rowNum++;
-//                List<String> rowData = Lists.newArrayList();
-//                rowData.add(rowNum + "");
-//                for (int i = 1; i <= columnCount; i++) {
-//                    rowData.add(resultSet.getString(i));
-//                }
-//                dataList.add(rowData);
-//            }
+            for (int i = 1; i <= columnCount; i++) {
+                titleList.add(resultSet.getMetaData().getColumnName(i));
+            }
+            //获取查询结果
+            int rowNum = 0;
+            while (resultSet.next()) {
+                rowNum++;
+                List<String> rowData = Lists.newArrayList();
+                rowData.add(rowNum + "");
+                for (int i = 1; i <= columnCount; i++) {
+                    rowData.add(resultSet.getString(i));
+                }
+                dataList.add(rowData);
+            }
 
             List<TableInfo> tableInfoList = Lists.newArrayList();
-            for (int i = 0; i < 4; i++) {
-                tableInfoList.add(new TableInfo("userName", getTypeMp().get("varchar"), "用户名称"));
+            for (List<String> strings : dataList) {
+                tableInfoList.add(new TableInfo(strings.get(0), getTypeMp().get(strings.get(1)), strings.get(2)));
             }
+
 
             String filed = "";
             for (TableInfo tableInfo : tableInfoList) {
