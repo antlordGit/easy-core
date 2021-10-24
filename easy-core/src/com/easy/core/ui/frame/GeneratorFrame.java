@@ -3,9 +3,11 @@ package com.easy.core.ui.frame;
 import cn.hutool.core.util.StrUtil;
 import com.easy.core.entity.TableInfo;
 import com.easy.core.listener.DocumentListener;
+import com.google.common.collect.Maps;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
@@ -17,6 +19,7 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 public class GeneratorFrame extends JBPanel {
 
@@ -149,6 +152,7 @@ public class GeneratorFrame extends JBPanel {
         Button button = new Button("创建文件");
         button.addActionListener((e) -> {
             generator();
+            Messages.showInfoMessage("代码已生成", "代码生成提示");
         });
         parentPanel.add(button);
     }
@@ -176,30 +180,32 @@ public class GeneratorFrame extends JBPanel {
         BufferedWriter bw = null;
         try {
 
-            File fileImpl = new File(controllerPath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()) + "Controller.java");
-            if (!fileImpl.exists()) {
-                fileImpl.createNewFile();
+            File file = new File(controllerPath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Controller.java");
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            if (!file.exists()) {
+                file.createNewFile();
             }
 
-            fos = new FileOutputStream(fileImpl);
-            outputStreamWriter = new OutputStreamWriter(fos);
+            fos = new FileOutputStream(file);
+            outputStreamWriter = new OutputStreamWriter(fos, "UTF-8");
             bw = new BufferedWriter(outputStreamWriter);
             // bw.newLine();
-            String java = mapperPath.getText().substring(mapperPath.getText().indexOf("java") + 4);
-            String packageText = java.replace("/", ".");
+            String java = mapperPath.getText().substring(mapperPath.getText().indexOf("java") + 5);
+            String packageText = java.replace("\\", ".");
 
-            String servicePath1 = servicePath.getText().substring(servicePath.getText().indexOf("java") + 4);
-            String packageText1 = servicePath1.replace("/", ".") + StrUtil.toCamelCase(dbTabel.getText()) + "Service.java";
-
+            String servicePath1 = servicePath.getText().substring(servicePath.getText().indexOf("java") + 5);
+            String packageText1 = servicePath1.replace("\\", ".") + "." + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Service";
 
             String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             String text = "package " + packageText + ";"
-                    + "\nimport " + packageText1 + ";" +
+                    + "\n\nimport " + packageText1 + ";" +
                     "\nimport org.springframework.beans.factory.annotation.Autowired;" +
                     "\nimport org.springframework.web.bind.annotation.RequestMapping;" +
                     "\nimport org.springframework.web.bind.annotation.RestController;" +
                     "\nimport lombok.extern.slf4j.Slf4j;" +
-                    "\n/**\n" +
+                    "\n\n/**\n" +
                     " * Description: \n" +
                     " * Author: chenzhiwei\n" +
                     " * Version: 1.0\n" +
@@ -209,15 +215,15 @@ public class GeneratorFrame extends JBPanel {
                     "\n@RestController" +
                     "\n@RequestMapping(\"/" + StrUtil.toCamelCase(dbTabel.getText()) + "\")" +
                     "\n@Slf4j" +
-                    "public class " + StrUtil.toCamelCase(dbTabel.getText()) + "Controller {";
+                    "\npublic class " + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Controller {";
             StringBuilder sb = new StringBuilder(text);
-            String serviceFiled = StrUtil.toCamelCase(dbTabel.getText()) + "Service";
+            String serviceFiled = StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Service";
             String serviceFileds = serviceFiled.substring(0, 1).toLowerCase() + serviceFiled.substring(1);
-            sb.append("\n\t/**\n" +
+            sb.append("\n\n\t/**\n" +
                     "\t * \t获取CDM信息服务数据访问接口\n" +
                     "\t */\n" +
                     "\t@Autowired\n" +
-                    "\tprivate " + serviceFiled + " " + serviceFileds);
+                    "\tprivate " + serviceFiled + " " + serviceFileds + ";");
             sb.append("\n}");
             bw.write(sb.toString());
             bw.flush();
@@ -242,42 +248,49 @@ public class GeneratorFrame extends JBPanel {
         OutputStreamWriter outputStreamWriter = null;
         BufferedWriter bw = null;
         try {
-
-            File fileImpl = new File(servicePath.getText() + "/impl/" + StrUtil.toCamelCase(dbTabel.getText()) + "ServiceImpl.java");
+            File fileImpl = new File(servicePath.getText() + "/impl/" + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "ServiceImpl.java");
+            if (!fileImpl.getParentFile().exists()) {
+                fileImpl.getParentFile().mkdirs();
+            }
             if (!fileImpl.exists()) {
                 fileImpl.createNewFile();
             }
 
             fos = new FileOutputStream(fileImpl);
-            outputStreamWriter = new OutputStreamWriter(fos);
+            outputStreamWriter = new OutputStreamWriter(fos, "UTF-8");
             bw = new BufferedWriter(outputStreamWriter);
             // bw.newLine();
-            String java = mapperPath.getText().substring(servicePath.getText().indexOf("java") + 4);
-            String packageText = java.replace("/", ".") + ".impl";
+            String java = servicePath.getText().substring(servicePath.getText().indexOf("java") + 5);
+            String packageText = java.replace("\\", ".") + ".impl";
+
+            String service = java.replace("\\", ".") + "." + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1);
+            String mapper = java.replace("\\", ".") + "." + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1);
+
             String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             String text = "package " + packageText + ";"
-                    + "\nimport " + packageText + "Service;" +
+                    + "\n\nimport " + service + "Service;" +
+                    "\nimport " + mapper + "Mapper;" +
                     "\nimport org.springframework.stereotype.Service;" +
                     "\nimport lombok.extern.slf4j.Slf4j;" +
                     "\nimport org.springframework.beans.factory.annotation.Autowired;" +
-                    "\n/**\n" +
+                    "\n\n/**\n" +
                     " * Description: \n" +
                     " * Author: chenzhiwei\n" +
                     " * Version: 1.0\n" +
                     " * Create Date Time: " + time + "\n" +
                     " *\n" +
                     " */" +
-                    "@Service" +
-                    "@Slf4j" +
-                    "public class " + StrUtil.toCamelCase(dbTabel.getText()) + "ServiceImpl implements " + StrUtil.toCamelCase(dbTabel.getText()) + "Service" + " {;";
+                    "\n@Service" +
+                    "\n@Slf4j" +
+                    "\npublic class " + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "ServiceImpl implements " + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Service" + " {";
             StringBuilder sb = new StringBuilder(text);
-            String mapperFiled = StrUtil.toCamelCase(dbTabel.getText()) + "Mapper";
+            String mapperFiled = StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Mapper";
             String mapperFileds = mapperFiled.substring(0, 1).toLowerCase() + mapperFiled.substring(1);
-            sb.append("\t/**\n" +
+            sb.append("\n\t/**\n" +
                     "\t * \t获取CDM信息服务数据访问接口\n" +
                     "\t */\n" +
                     "\t@Autowired\n" +
-                    "\tprivate " + mapperFiled + " " + mapperFileds);
+                    "\tprivate " + mapperFiled + " " + mapperFileds + ";");
             sb.append("\n}");
             bw.write(sb.toString());
             bw.flush();
@@ -302,27 +315,30 @@ public class GeneratorFrame extends JBPanel {
         OutputStreamWriter outputStreamWriter = null;
         BufferedWriter bw = null;
         try {
-            File file = new File(servicePath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()) + "Service.java");
+            File file = new File(servicePath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Service.java");
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
             if (!file.exists()) {
                 file.createNewFile();
             }
 
             fos = new FileOutputStream(file);
-            outputStreamWriter = new OutputStreamWriter(fos);
+            outputStreamWriter = new OutputStreamWriter(fos, "UTF-8");
             bw = new BufferedWriter(outputStreamWriter);
             // bw.newLine();
-            String java = mapperPath.getText().substring(servicePath.getText().indexOf("java") + 4);
-            String packageText = java.replace("/", ".");
+            String java = mapperPath.getText().substring(servicePath.getText().indexOf("java") + 5);
+            String packageText = java.replace("\\", ".");
             String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             String text = "package " + packageText + ";"
-                    + "\n/**\n" +
+                    + "\n\n/**\n" +
                     " * Description: \n" +
                     " * Author: chenzhiwei\n" +
                     " * Version: 1.0\n" +
                     " * Create Date Time: " + time + "\n" +
                     " *\n" +
                     " */" +
-                    "\npublic interface " + StrUtil.toCamelCase(dbTabel.getText()) + "Service" + " {";
+                    "\npublic interface " + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Service" + " {";
             StringBuilder sb = new StringBuilder(text);
             sb.append("\n}");
             bw.write(sb.toString());
@@ -348,17 +364,20 @@ public class GeneratorFrame extends JBPanel {
         BufferedWriter bw = null;
         try {
             File file = new File(xmlPath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()) + "Mapper.xml");
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
             if (!file.exists()) {
                 file.createNewFile();
             }
 
             fos = new FileOutputStream(file);
-            outputStreamWriter = new OutputStreamWriter(fos);
+            outputStreamWriter = new OutputStreamWriter(fos, "UTF-8");
             bw = new BufferedWriter(outputStreamWriter);
             // bw.newLine();
-            String java = mapperPath.getText().substring(mapperPath.getText().indexOf("java") + 4);
-            String packageText = java.replace("/", ".");
-            String namespace = packageText + "." + StrUtil.toCamelCase(dbTabel.getText()) + "Mapper";
+            String java = mapperPath.getText().substring(mapperPath.getText().indexOf("java") + 5);
+            String packageText = java.replace("\\", ".");
+            String namespace = packageText + "." + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Mapper";
             String text = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                     "<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\" >\n" +
                     "<!-- 映射文件，映射到对应的SQL接口 -->\n" +
@@ -388,21 +407,24 @@ public class GeneratorFrame extends JBPanel {
         OutputStreamWriter outputStreamWriter = null;
         BufferedWriter bw = null;
         try {
-            File file = new File(mapperPath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()) + "Mapper.java");
+            File file = new File(mapperPath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Mapper.java");
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
             if (!file.exists()) {
                 file.createNewFile();
             }
 
             fos = new FileOutputStream(file);
-            outputStreamWriter = new OutputStreamWriter(fos);
+            outputStreamWriter = new OutputStreamWriter(fos, "UTF-8");
             bw = new BufferedWriter(outputStreamWriter);
             // bw.newLine();
-            String java = mapperPath.getText().substring(mapperPath.getText().indexOf("java") + 4);
-            String packageText = java.replace("/", ".");
+            String java = mapperPath.getText().substring(mapperPath.getText().indexOf("java") + 5);
+            String packageText = java.replace("\\", ".");
             String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             String text = "package " + packageText + ";"
-                    + "\nimport org.apache.ibatis.annotations.Mapper;"
-                    + "\n/**\n" +
+                    + "\n\nimport org.apache.ibatis.annotations.Mapper;"
+                    + "\n\n/**\n" +
                     " * Description: \n" +
                     " * Author: chenzhiwei\n" +
                     " * Version: 1.0\n" +
@@ -410,7 +432,7 @@ public class GeneratorFrame extends JBPanel {
                     " *\n" +
                     " */" +
                     "\n@Mapper" +
-                    "\npublic interface " + StrUtil.toCamelCase(dbTabel.getText()) + "Mapper" + " {";
+                    "\npublic interface " + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Mapper" + " {";
             StringBuilder sb = new StringBuilder(text);
             sb.append("\n}");
             bw.write(sb.toString());
@@ -435,23 +457,26 @@ public class GeneratorFrame extends JBPanel {
         OutputStreamWriter outputStreamWriter = null;
         BufferedWriter bw = null;
         try {
-            File file = new File(pojoPath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()) + "POJO.java");
+            File file = new File(pojoPath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "POJO.java");
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
             if (!file.exists()) {
                 file.createNewFile();
             }
 
             fos = new FileOutputStream(file);
-            outputStreamWriter = new OutputStreamWriter(fos);
+            outputStreamWriter = new OutputStreamWriter(fos, "UTF-8");
             bw = new BufferedWriter(outputStreamWriter);
             // bw.newLine();
-            String java = pojoPath.getText().substring(pojoPath.getText().indexOf("java") + 4);
-            String packageText = java.replace("/", ".");
+            String java = pojoPath.getText().substring(pojoPath.getText().indexOf("java") + 5);
+            String packageText = java.replace("\\", ".");
             String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             String text = "package " + packageText + ";"
-                    + "\nimport lombok.Data;"
+                    + "\n\nimport lombok.Data;"
                     + "\nimport lombok.EqualsAndHashCode;"
                     + "\nimport java.io.Serializable;"
-                    + "\n/**\n" +
+                    + "\n\n/**\n" +
                     " * Description: \n" +
                     " * Author: chenzhiwei\n" +
                     " * Version: 1.0\n" +
@@ -460,7 +485,7 @@ public class GeneratorFrame extends JBPanel {
                     " */" +
                     "\n@Data" +
                     "\n@EqualsAndHashCode(callSuper = false)\n" +
-                    "public class " + StrUtil.toCamelCase(dbTabel.getText()) + "POJO" + " implements Serializable {";
+                    "public class " + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "POJO" + " implements Serializable {";
             StringBuilder sb = new StringBuilder(text);
 
 //            Connection conn = DriverManager.getConnection(dbUrl.getText(), dbUser.getText(), dbPassword.getText());
@@ -485,14 +510,13 @@ public class GeneratorFrame extends JBPanel {
 //            }
 
             List<TableInfo> tableInfoList = Lists.newArrayList();
-            for (List<String> strings : dataList) {
-//                tableInfoList.add(new TableInfo(strings.get(1), strings.get(2), strings.get(3)));
-                tableInfoList.add(new TableInfo("userName", "String", "用户名称"));
+            for (int i = 0; i < 4; i++) {
+                tableInfoList.add(new TableInfo("userName", getTypeMp().get("varchar"), "用户名称"));
             }
 
             String filed = "";
             for (TableInfo tableInfo : tableInfoList) {
-                filed = "\n\t/**\n" +
+                filed = "\n\n\t/**\n" +
                         "\t * " + tableInfo.getComment() + "\n" +
                         "\t */\n" +
                         "\tprivate " + tableInfo.getType() + " " + StrUtil.toCamelCase(tableInfo.getName()) + ";";
@@ -514,5 +538,14 @@ public class GeneratorFrame extends JBPanel {
                 bw.close();
             }
         }
+    }
+
+    private Map<String, String> getTypeMp() {
+        Map<String, String> map = Maps.newHashMap();
+        map.put("varchar", "String");
+        map.put("VARCHAR", "String");
+        map.put("int", "Integer");
+        map.put("datetime", "Date");
+        return map;
     }
 }
