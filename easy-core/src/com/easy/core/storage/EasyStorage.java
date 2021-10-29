@@ -136,4 +136,12 @@ public class EasyStorage {
     public static boolean getLogoShow() {
         return PropertiesComponent.getInstance().getBoolean("logoShowFlag");
     }
+
+    public static String getGenerator() {
+        return PropertiesComponent.getInstance().getValue("generator");
+    }
+
+    public static void setGenerator(String json) {
+        PropertiesComponent.getInstance().setValue("generator", json);
+    }
 }

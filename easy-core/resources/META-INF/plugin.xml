@@ -96,7 +96,7 @@
 
     <action id="HumpNamingMenuActionId" class="com.easy.core.action.menu.HumpNamingMenuAction" text="HumpNaming" description="HumpNamingMenuAction">
       <add-to-group group-id="Easy-Core-id"/>
-      <keyboard-shortcut first-keystroke="alt 3" keymap="$default"/>
+      <keyboard-shortcut first-keystroke="alt x" keymap="$default"/>
     </action>
 
     <action id="JsonFormatMenuActionId" class="com.easy.core.action.menu.JsonFormatMenuAction" text="JsonFormat" description="JsonFormatMenuAction">

@@ -1,8 +1,9 @@
 package com.easy.core.action.menu;
 
+import com.easy.core.service.AddClassCommentMenuService;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.components.ServiceManager;
 import org.jetbrains.annotations.NotNull;
 //import io.zhile.research.intellij.ier.helper.DateTime;
 //import io.zhile.research.intellij.ier.helper.NotificationHelper;
@@ -11,9 +12,11 @@ public class AddClassCommentMenuAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-//        AddClassCommentMenuService service = ServiceManager.getService(event.getProject(), AddClassCommentMenuService.class);
-//        service.actionPerformed(event);
-        String configPath = PathManager.getConfigPath();
+        AddClassCommentMenuService service = ServiceManager.getService(event.getProject(), AddClassCommentMenuService.class);
+        service.actionPerformed(event);
+//        int i = Messages.showYesNoCancelDialog("1111", "2222", null);
+//        System.out.println("=========");
+//        String configPath = PathManager.getConfigPath();
 //        return new File(configPath, "eval");
 
 //        File evalDir = new File(configPath, "eval");

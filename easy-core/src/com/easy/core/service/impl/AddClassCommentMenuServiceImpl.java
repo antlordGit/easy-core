@@ -26,7 +26,7 @@ public class AddClassCommentMenuServiceImpl implements AddClassCommentMenuServic
             String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             String author = EasyStorage.getAuthor();
             if (StringUtils.isBlank(author)) {
-                author = Messages.showInputDialog(event.getProject(), "输入Author", "设置Author", AllIcons.Actions.Scratch, "CHENZHIWEI334", null);
+                author = Messages.showInputDialog(event.getProject(), "输入Author", "设置Author", AllIcons.Actions.Scratch, "CHENZHIWEI", null);
                 EasyStorage.setAuthor(author);
             }
             String comment = "/**\n" +
