@@ -21,6 +21,8 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.*;
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -36,6 +38,7 @@ public class GeneratorFrame extends JBPanel {
     private JTextField dbUser;
     private JTextField dbPassword;
     private JTextField dbTabel;
+    private JTextField dbTabelAlia;
     private JTextField mapperPath;
     private JTextField xmlPath;
     private JTextField servicePath;
@@ -45,6 +48,7 @@ public class GeneratorFrame extends JBPanel {
     private Map<String, Boolean> map = Maps.newHashMap();
     private String tableComment;
     private String author;
+    private String nameSpace;
 
     public GeneratorFrame() {
         super(new BorderLayout());
@@ -89,6 +93,27 @@ public class GeneratorFrame extends JBPanel {
         JPanel panel9 = new JPanel(new BorderLayout());
         panel9.add(new JLabel("表名"), BorderLayout.WEST);
         panel9.add(dbTabel = new JTextField(StringUtils.isBlank(dbTable) ? "表名" : dbTable), BorderLayout.CENTER);
+        JPanel panel91 = new JPanel(new BorderLayout());
+        panel91.add(new JLabel("别名"), BorderLayout.WEST);
+        dbTabel.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                dbTabelAlia.setText(defaultAlia());
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                dbTabelAlia.setText(defaultAlia());
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                dbTabelAlia.setText(defaultAlia());
+            }
+        });
+        panel91.add(dbTabelAlia = new JTextField(defaultAlia()));
+        panel9.add(panel91, BorderLayout.EAST);
+
         parentPanel.add(panel9);
 
         String mapperPathStr = jsonObject.getString("mapperPath");
@@ -185,6 +210,7 @@ public class GeneratorFrame extends JBPanel {
             map.clear();
             tableComment = "";
             author = "";
+            nameSpace = StrUtil.toCamelCase(dbTabelAlia.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabelAlia.getText()).substring(1);
             JSONObject jsonObject1 = null;
             if (StringUtils.isBlank(temp)) {
                 jsonObject1 = new JSONObject();
@@ -194,27 +220,27 @@ public class GeneratorFrame extends JBPanel {
 
             if (StringUtils.isNotBlank(pojoPath.getText())) {
                 jsonObject1.put("pojoPath", pojoPath.getText());
-                fileList.add(new File(pojoPath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "POJO.java"));
+                fileList.add(new File(pojoPath.getText() + "/" + nameSpace + "POJO.java"));
             }
 
             if (StringUtils.isNotBlank(controllerPath.getText())) {
                 jsonObject1.put("controllerPath", controllerPath.getText());
-                fileList.add(new File(controllerPath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Controller.java"));
+                fileList.add(new File(controllerPath.getText() + "/" + nameSpace + "Controller.java"));
             }
             if (StringUtils.isNotBlank(servicePath.getText())) {
                 jsonObject1.put("servicePath", servicePath.getText());
-                fileList.add(new File(servicePath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Service.java"));
-                fileList.add(new File(servicePath.getText() + "/impl/" + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "ServiceImpl.java"));
+                fileList.add(new File(servicePath.getText() + "/" + nameSpace + "Service.java"));
+                fileList.add(new File(servicePath.getText() + "/impl/" + nameSpace + "ServiceImpl.java"));
             }
 
             if (StringUtils.isNotBlank(xmlPath.getText())) {
                 jsonObject1.put("xmlPath", xmlPath.getText());
-                fileList.add(new File(xmlPath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()) + "Mapper.xml"));
+                fileList.add(new File(xmlPath.getText() + "/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "Mapper.xml"));
             }
 
             if (StringUtils.isNotBlank(mapperPath.getText())) {
                 jsonObject1.put("mapperPath", mapperPath.getText());
-                fileList.add(new File(mapperPath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Mapper.java"));
+                fileList.add(new File(mapperPath.getText() + "/" + nameSpace + "Mapper.java"));
             }
 
             if (StringUtils.isNotBlank(dbUrl.getText())) {
@@ -247,6 +273,13 @@ public class GeneratorFrame extends JBPanel {
         });
         panel10.add(button, BorderLayout.WEST);
         parentPanel.add(panel10);
+    }
+
+    private String defaultAlia() {
+        if (null == dbTabel || StringUtils.isBlank(dbTabel.getText())) {
+            return "数据表别名";
+        }
+        return dbTabel.getText();
     }
 
     private void generator() {
@@ -302,12 +335,16 @@ public class GeneratorFrame extends JBPanel {
     }
 
     private void createController() throws IOException {
+        if (StringUtils.isBlank(controllerPath.getText())) {
+            return;
+        }
+
         FileOutputStream fos = null;
         OutputStreamWriter outputStreamWriter = null;
         BufferedWriter bw = null;
         try {
 
-            File file = new File(controllerPath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Controller.java");
+            File file = new File(controllerPath.getText() + "/" + nameSpace + "Controller.java");
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
@@ -323,7 +360,7 @@ public class GeneratorFrame extends JBPanel {
             String packageText = java.replaceAll("([/\\\\])", ".");
 
             String servicePath1 = servicePath.getText().substring(servicePath.getText().indexOf("java") + 5);
-            String packageText1 = servicePath1.replaceAll("([/\\\\])", ".") + "." + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Service";
+            String packageText1 = servicePath1.replaceAll("([/\\\\])", ".") + "." + nameSpace + "Service";
 
             String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             String text = "package " + packageText + ";"
@@ -340,11 +377,11 @@ public class GeneratorFrame extends JBPanel {
                     " *\n" +
                     " */" +
                     "\n@RestController" +
-                    "\n@RequestMapping(\"/" + StrUtil.toCamelCase(dbTabel.getText()) + "\")" +
+                    "\n@RequestMapping(\"/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "\")" +
                     "\n@Slf4j" +
-                    "\npublic class " + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Controller {";
+                    "\npublic class " + nameSpace + "Controller {";
             StringBuilder sb = new StringBuilder(text);
-            String serviceFiled = StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Service";
+            String serviceFiled = nameSpace + "Service";
             String serviceFileds = serviceFiled.substring(0, 1).toLowerCase() + serviceFiled.substring(1);
             sb.append("\n\n\t/**\n" +
                     "\t * \t" + tableComment + "服务类\n" +
@@ -372,11 +409,14 @@ public class GeneratorFrame extends JBPanel {
     }
 
     private void createServiceImpl() throws IOException {
+        if (StringUtils.isBlank(servicePath.getText())) {
+            return;
+        }
         FileOutputStream fos = null;
         OutputStreamWriter outputStreamWriter = null;
         BufferedWriter bw = null;
         try {
-            File fileImpl = new File(servicePath.getText() + "/impl/" + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "ServiceImpl.java");
+            File fileImpl = new File(servicePath.getText() + "/impl/" + nameSpace + "ServiceImpl.java");
             if (!fileImpl.getParentFile().exists()) {
                 fileImpl.getParentFile().mkdirs();
             }
@@ -391,9 +431,9 @@ public class GeneratorFrame extends JBPanel {
             String java = servicePath.getText().substring(servicePath.getText().indexOf("java") + 5);
             String packageText = java.replaceAll("([/\\\\])", ".") + ".impl";
 
-            String service = java.replaceAll("([/\\\\])", ".") + "." + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1);
+            String service = java.replaceAll("([/\\\\])", ".") + "." + nameSpace;
             java = mapperPath.getText().substring(mapperPath.getText().indexOf("java") + 5);
-            String mapper = java.replaceAll("([/\\\\])", ".") + "." + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1);
+            String mapper = java.replaceAll("([/\\\\])", ".") + "." + nameSpace;
 
             String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             String text = "package " + packageText + ";"
@@ -411,9 +451,9 @@ public class GeneratorFrame extends JBPanel {
                     " */" +
                     "\n@Service" +
                     "\n@Slf4j" +
-                    "\npublic class " + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "ServiceImpl implements " + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Service" + " {";
+                    "\npublic class " + nameSpace + "ServiceImpl implements " + nameSpace + "Service" + " {";
             StringBuilder sb = new StringBuilder(text);
-            String mapperFiled = StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Mapper";
+            String mapperFiled = nameSpace + "Mapper";
             String mapperFileds = mapperFiled.substring(0, 1).toLowerCase() + mapperFiled.substring(1);
             sb.append("\n\t/**\n" +
                     "\t * \t" + tableComment + "数据库处理类\n" +
@@ -441,11 +481,15 @@ public class GeneratorFrame extends JBPanel {
 
     }
     private void createService() throws IOException {
+        if (StringUtils.isBlank(servicePath.getText())) {
+            return;
+        }
+
         FileOutputStream fos = null;
         OutputStreamWriter outputStreamWriter = null;
         BufferedWriter bw = null;
         try {
-            File file = new File(servicePath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Service.java");
+            File file = new File(servicePath.getText() + "/" + nameSpace + "Service.java");
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
@@ -468,7 +512,7 @@ public class GeneratorFrame extends JBPanel {
                     " * Create Date Time: " + time + "\n" +
                     " *\n" +
                     " */" +
-                    "\npublic interface " + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Service" + " {";
+                    "\npublic interface " + nameSpace + "Service" + " {";
             StringBuilder sb = new StringBuilder(text);
             sb.append("\n}");
             bw.write(sb.toString());
@@ -490,11 +534,14 @@ public class GeneratorFrame extends JBPanel {
     }
 
     private void createXML() throws IOException {
+        if (StringUtils.isBlank(xmlPath.getText())) {
+            return;
+        }
         FileOutputStream fos = null;
         OutputStreamWriter outputStreamWriter = null;
         BufferedWriter bw = null;
         try {
-            File file = new File(xmlPath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()) + "Mapper.xml");
+            File file = new File(xmlPath.getText() + "/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "Mapper.xml");
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
@@ -508,7 +555,7 @@ public class GeneratorFrame extends JBPanel {
             // bw.newLine();
             String java = mapperPath.getText().substring(mapperPath.getText().indexOf("java") + 5);
             String packageText = java.replaceAll("([/\\\\])", ".");
-            String namespace = packageText + "." + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Mapper";
+            String namespace = packageText + "." + nameSpace + "Mapper";
             String text = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                     "<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\" >\n" +
                     "<!-- 映射文件，映射到对应的SQL接口 -->\n" +
@@ -535,11 +582,14 @@ public class GeneratorFrame extends JBPanel {
 
 
     private void createMapper() throws IOException {
+        if (StringUtils.isBlank(mapperPath.getText())) {
+            return;
+        }
         FileOutputStream fos = null;
         OutputStreamWriter outputStreamWriter = null;
         BufferedWriter bw = null;
         try {
-            File file = new File(mapperPath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Mapper.java");
+            File file = new File(mapperPath.getText() + "/" + nameSpace + "Mapper.java");
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
@@ -564,7 +614,7 @@ public class GeneratorFrame extends JBPanel {
                     " *\n" +
                     " */" +
                     "\n@Mapper" +
-                    "\npublic interface " + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "Mapper" + " {";
+                    "\npublic interface " + nameSpace + "Mapper" + " {";
             StringBuilder sb = new StringBuilder(text);
             sb.append("\n}");
             bw.write(sb.toString());
@@ -586,11 +636,14 @@ public class GeneratorFrame extends JBPanel {
     }
 
     private void createPOJO() throws IOException {
+        if (StringUtils.isBlank(pojoPath.getText())) {
+            return;
+        }
         FileOutputStream fos = null;
         OutputStreamWriter outputStreamWriter = null;
         BufferedWriter bw = null;
         try {
-            File file = new File(pojoPath.getText() + "/" + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "POJO.java");
+            File file = new File(pojoPath.getText() + "/" + nameSpace + "POJO.java");
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
@@ -677,7 +730,7 @@ public class GeneratorFrame extends JBPanel {
                     " */" +
                     "\n@Data" +
                     "\n@EqualsAndHashCode(callSuper = false)\n" +
-                    "public class " + StrUtil.toCamelCase(dbTabel.getText()).substring(0, 1).toUpperCase() + StrUtil.toCamelCase(dbTabel.getText()).substring(1) + "POJO" + " implements Serializable {" +
+                    "public class " + nameSpace + "POJO" + " implements Serializable {" +
                     "\n\n\tprivate static final long serialVersionUID = 1L;";
             if (hasDateFlag) {
                 text = text.replace("${}", "\nimport java.util.Date;");
