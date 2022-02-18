@@ -9,7 +9,7 @@ public class LogoShowObserver implements EasyObserver{
     @Override
     public void observer(String action, VirtualFile file) {
         if (null != DocumentListener.project) {
-            ShowLogoInEditorMenuServiceImpl.showLogo(DocumentListener.project);
+            ShowLogoInEditorMenuServiceImpl.showLogo(DocumentListener.project, "文本");
         }
     }
 

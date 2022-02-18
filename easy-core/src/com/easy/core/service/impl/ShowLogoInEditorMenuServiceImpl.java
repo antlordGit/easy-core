@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -20,15 +21,17 @@ public class ShowLogoInEditorMenuServiceImpl implements ShowLogoInEditorMenuServ
             EasyStorage.setLogoShow(true);
             logoShow = true;
         }
+        String text = "文本";
         if (!logoShow) {
             EasyStorage.setLogoShow(true);
-        }else {
+            text = Messages.showInputDialog("请输入你的文本", "输入logo文本", null);
+        } else {
             EasyStorage.setLogoShow(false);
         }
-        showLogo(anActionEvent.getProject());
+        showLogo(anActionEvent.getProject(), text);
     }
 
-    public static void showLogo(Project project) {
+    public static void showLogo(Project project, String text) {
         try {
             // 获取当前编辑器
             Editor selectedTextEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
@@ -48,7 +51,7 @@ public class ShowLogoInEditorMenuServiceImpl implements ShowLogoInEditorMenuServ
             JLabel logoCenter = new JLabel();
             logoCenter.setForeground(new Color(0, 255, 0));
             logoCenter.setFont(new Font("微软雅黑", Font.BOLD, 60));
-            logoCenter.setText("陈志伟");
+            logoCenter.setText(text);
 
             // 获取当前光标的位置
             contentComponent.setLayout(new FlowLayout(FlowLayout.LEFT, 1000, 30));

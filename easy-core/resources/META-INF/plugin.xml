@@ -37,16 +37,16 @@
     <projectService serviceInterface="com.easy.core.service.ShowLogoInEditorMenuService" serviceImplementation="com.easy.core.service.impl.ShowLogoInEditorMenuServiceImpl"/>
     <toolWindow factoryClass="com.easy.core.ui.EasyFrameFactory" anchor="bottom" id="EasyTool" doNotActivateOnStart="true" icon="/icon/svg/toolWindow.svg"/>
     <applicationService serviceImplementation="com.easy.core.storage.EasyState"/>
-    <codeInsight.lineMarkerProvider language="JAVA" implementationClass="com.easy.core.install.JavaToXmlProvider"/>
-    <codeInsight.lineMarkerProvider language="XML" implementationClass="com.easy.core.install.XmlToJavaProvider"/>
+<!--    <codeInsight.lineMarkerProvider language="JAVA" implementationClass="com.easy.core.install.JavaToXmlProvider"/>-->
+<!--    <codeInsight.lineMarkerProvider language="XML" implementationClass="com.easy.core.install.XmlToJavaProvider"/>-->
     <consoleFilterProvider implementation="com.easy.core.install.MainConsoleFilterProvider"/>
-    <runLineMarkerContributor language="XML" implementationClass="com.easy.core.install.MybatisXmlContributor"/>
-    <gotoDeclarationHandler implementation="com.easy.core.install.XmlTagJumpDeclarationHandler"/>
+<!--    <runLineMarkerContributor language="XML" implementationClass="com.easy.core.install.MybatisXmlContributor"/>-->
+<!--    <gotoDeclarationHandler implementation="com.easy.core.install.XmlTagJumpDeclarationHandler"/>-->
 
     <fileTypeFactory implementation="com.easy.core.fileType.api.ApiFileTypeFactory"/>
-    <runLineMarkerContributor language="api" implementationClass="com.easy.core.install.ApiRunLineMarkerContributor"/>
-    <lang.parserDefinition language="api" implementationClass="com.easy.core.fileType.api.ApiParserDefinition"/>
-    <completion.contributor language="XML" implementationClass="com.easy.core.install.MybatisXmlCompletionContributor" id="MybatisXmlCompletionContributor"/>
+<!--    <runLineMarkerContributor language="api" implementationClass="com.easy.core.install.ApiRunLineMarkerContributor"/>-->
+<!--    <lang.parserDefinition language="api" implementationClass="com.easy.core.fileType.api.ApiParserDefinition"/>-->
+<!--    <completion.contributor language="XML" implementationClass="com.easy.core.install.MybatisXmlCompletionContributor" id="MybatisXmlCompletionContributor"/>-->
 
   </extensions>
 

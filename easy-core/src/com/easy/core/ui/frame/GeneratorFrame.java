@@ -258,10 +258,12 @@ public class GeneratorFrame extends JBPanel {
             }
 
             EasyStorage.setGenerator(JSON.toJSONString(jsonObject1));
-            String author = EasyStorage.getAuthor();
-            if (StringUtils.isBlank(author)) {
+            String author2 = EasyStorage.getAuthor();
+            if (StringUtils.isBlank(author2)) {
                 author = Messages.showInputDialog(DocumentListener.project, "输入Author", "设置Author", AllIcons.Actions.Scratch, "CHENZHIWEI", null);
                 EasyStorage.setAuthor(author);
+            } else {
+                author = author2;
             }
 
             // 确定新增文件
@@ -717,7 +719,9 @@ public class GeneratorFrame extends JBPanel {
             }
             conn.close();
             String text = "package " + packageText + ";"
-                    + "\n\nimport lombok.Data;"
+                    + "\n\nimport io.swagger.annotations.ApiModel;"
+                    + "\nimport io.swagger.annotations.ApiModelProperty;"
+                    + "\nimport lombok.Data;"
                     + "\nimport lombok.EqualsAndHashCode;"
                     + "\nimport java.io.Serializable;"
                     + "${}"
@@ -728,6 +732,7 @@ public class GeneratorFrame extends JBPanel {
                     " * Create Date Time: " + time + "\n" +
                     " *\n" +
                     " */" +
+                    "\n@ApiModel" +
                     "\n@Data" +
                     "\n@EqualsAndHashCode(callSuper = false)\n" +
                     "public class " + nameSpace + "POJO" + " implements Serializable {" +
@@ -743,7 +748,8 @@ public class GeneratorFrame extends JBPanel {
                 filed = "\n\n\t/**\n" +
                         "\t * " + tableInfo.getComment() + "\n" +
                         "\t */\n" +
-                        "\tprivate " + tableInfo.getType() + " " + StrUtil.toCamelCase(tableInfo.getName()) + ";";
+                        "\t@ApiModelProperty(name = \"" + StrUtil.toCamelCase(tableInfo.getName()) + "\", value = \"" + tableInfo.getComment() + "\", dataType = \"" + tableInfo.getType() + "\")" +
+                        "\n\tprivate " + tableInfo.getType() + " " + StrUtil.toCamelCase(tableInfo.getName()) + ";";
                 sb.append(filed);
             }
             sb.append("\n}");
