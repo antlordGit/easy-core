@@ -116,4 +116,32 @@ public class EasyStorage {
         PropertiesComponent.getInstance().setValue("sqmCookie", sqmCookie);
     }
 
+    public static void setMybatisXmlFiled(String filedList) {
+        PropertiesComponent.getInstance().setValue("mybatisFiled", filedList);
+    }
+
+    public static String getMybatisXmlFiled() {
+        return PropertiesComponent.getInstance().getValue("mybatisFiled");
+    }
+
+    public static void setCurrentFile(String filePath) {
+        PropertiesComponent.getInstance().setValue("currentFilePath", filePath);
+    }
+    public static String gettCurrentFile() {
+        return PropertiesComponent.getInstance().getValue("currentFilePath");
+    }
+    public static void setLogoShow(boolean showFlag) {
+        PropertiesComponent.getInstance().setValue("logoShowFlag", showFlag);
+    }
+    public static boolean getLogoShow() {
+        return PropertiesComponent.getInstance().getBoolean("logoShowFlag");
+    }
+
+    public static String getGenerator() {
+        return PropertiesComponent.getInstance().getValue("generator");
+    }
+
+    public static void setGenerator(String json) {
+        PropertiesComponent.getInstance().setValue("generator", json);
+    }
 }

@@ -147,7 +147,7 @@ public class ExecuteSqlServiceImpl implements ExecuteSqlService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             Messages.showErrorDialog(e.getMessage(), "ExecutSqlServiceImpl");
         }
     }

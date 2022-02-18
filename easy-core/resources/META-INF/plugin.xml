@@ -2,10 +2,10 @@
   <id>com.your.antlord.easy-core.plugin.id</id>
   <name>EasyCore</name>
   <version>1.0</version>
-  <vendor email="czwilxz@qq.com" url="http://www.yourcompany.com">Antlrod</vendor>
+  <vendor email="czwilxz@qq.com" url="https://www.wengegroup.com/">中科闻歌</vendor>
 
   <description><![CDATA[
-      待补充待补充待补充待补充待补充待补充待补充待补充待补充待补充待补充待补充待补充待补充待补充
+      欢迎使用IDEA快捷插件，有疑问可以联系研发一部陈志伟(zhiwei.chen@wenge.com)
     ]]></description>
 
   <change-notes><![CDATA[
@@ -17,6 +17,7 @@
   <idea-version since-build="173.0"/>
   <depends>com.intellij.modules.platform</depends>
   <depends>com.intellij.modules.java</depends>
+  <depends>com.intellij.modules.ultimate</depends>
 
   <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
        on how to target different products -->
@@ -32,24 +33,47 @@
     <projectService serviceInterface="com.easy.core.service.SqlFormatterService" serviceImplementation="com.easy.core.service.impl.SqlFormatterServiceImpl"/>
     <projectService serviceInterface="com.easy.core.service.JsonFormatterService" serviceImplementation="com.easy.core.service.impl.JsonFormatterServiceImpl"/>
     <projectService serviceInterface="com.easy.core.service.CopyFullUrlService" serviceImplementation="com.easy.core.service.impl.CopyFullUrlServiceImpl"/>
+    <projectService serviceInterface="com.easy.core.service.RegisterRenewalMenuService" serviceImplementation="com.easy.core.service.impl.RegisterRenewalMenuServiceImpl"/>
+    <projectService serviceInterface="com.easy.core.service.ShowLogoInEditorMenuService" serviceImplementation="com.easy.core.service.impl.ShowLogoInEditorMenuServiceImpl"/>
     <toolWindow factoryClass="com.easy.core.ui.EasyFrameFactory" anchor="bottom" id="EasyTool" doNotActivateOnStart="true" icon="/icon/svg/toolWindow.svg"/>
     <applicationService serviceImplementation="com.easy.core.storage.EasyState"/>
-    <codeInsight.lineMarkerProvider language="JAVA" implementationClass="com.easy.core.install.JavaToXmlProvider"/>
-    <codeInsight.lineMarkerProvider language="XML" implementationClass="com.easy.core.install.XmlToJavaProvider"/>
+<!--    <codeInsight.lineMarkerProvider language="JAVA" implementationClass="com.easy.core.install.JavaToXmlProvider"/>-->
+<!--    <codeInsight.lineMarkerProvider language="XML" implementationClass="com.easy.core.install.XmlToJavaProvider"/>-->
     <consoleFilterProvider implementation="com.easy.core.install.MainConsoleFilterProvider"/>
-    <runLineMarkerContributor language="XML" implementationClass="com.easy.core.install.MybatisXmlContributor"/>
-    <gotoDeclarationHandler implementation="com.easy.core.install.XmlTagJumpDeclarationHandler"/>
+<!--    <runLineMarkerContributor language="XML" implementationClass="com.easy.core.install.MybatisXmlContributor"/>-->
+<!--    <gotoDeclarationHandler implementation="com.easy.core.install.XmlTagJumpDeclarationHandler"/>-->
 
     <fileTypeFactory implementation="com.easy.core.fileType.api.ApiFileTypeFactory"/>
-    <runLineMarkerContributor language="api" implementationClass="com.easy.core.install.ApiRunLineMarkerContributor"/>
-    <lang.parserDefinition language="api" implementationClass="com.easy.core.fileType.api.ApiParserDefinition"/>
+<!--    <runLineMarkerContributor language="api" implementationClass="com.easy.core.install.ApiRunLineMarkerContributor"/>-->
+<!--    <lang.parserDefinition language="api" implementationClass="com.easy.core.fileType.api.ApiParserDefinition"/>-->
+<!--    <completion.contributor language="XML" implementationClass="com.easy.core.install.MybatisXmlCompletionContributor" id="MybatisXmlCompletionContributor"/>-->
+
   </extensions>
+
+
+  <applicationListeners>
+<!--    <listener class="com.easy.core.listener.MyDynamicPluginListener" topic="com.intellij.ide.plugins.DynamicPluginListener" />-->
+    <listener class="com.easy.core.listener.MyProjectManagerListener" topic="com.intellij.openapi.project.ProjectManagerListener" />
+<!--    <listener class="com.easy.core.listener.FileEditorListener" topic="com.intellij.openapi.editor.event.VisibleAreaListener" />-->
+  </applicationListeners>
+
+  <projectListeners>
+    <listener class="com.easy.core.listener.MyExecutionListener" topic="com.intellij.execution.ExecutionListener" />
+<!--    <listener class="com.easy.core.listener.MYSMTRunnerEventsListener" topic="com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener" />-->
+<!--    <listener class="com.easy.core.listener.MyProjectTaskListener" topic="com.intellij.task.ProjectTaskListener" />-->
+  </projectListeners>
 
   <application-components>
     <component>
       <implementation-class>com.easy.core.ui.component.NyanApplicationComponent</implementation-class>
     </component>
   </application-components>
+
+  <project-components>
+    <component>
+      <implementation-class>com.easy.core.listener.DocumentListener</implementation-class>
+    </component>
+  </project-components>
 
   <actions>
 
@@ -66,13 +90,13 @@
       <add-to-group group-id="Easy-Core-id"/>
     </action>
 
-    <action id="BackgroundMenuActionId" class="com.easy.core.action.menu.BackgroundMenuAction" text="background" description="BackgroundMenuAction">
-      <add-to-group group-id="Easy-Core-id"/>
-    </action>
+<!--    <action id="BackgroundMenuActionId" class="com.easy.core.action.menu.BackgroundMenuAction" text="background" description="BackgroundMenuAction">-->
+<!--      <add-to-group group-id="Easy-Core-id"/>-->
+<!--    </action>-->
 
     <action id="HumpNamingMenuActionId" class="com.easy.core.action.menu.HumpNamingMenuAction" text="HumpNaming" description="HumpNamingMenuAction">
       <add-to-group group-id="Easy-Core-id"/>
-      <keyboard-shortcut first-keystroke="alt 3" keymap="$default"/>
+      <keyboard-shortcut first-keystroke="alt x" keymap="$default"/>
     </action>
 
     <action id="JsonFormatMenuActionId" class="com.easy.core.action.menu.JsonFormatMenuAction" text="JsonFormat" description="JsonFormatMenuAction">
@@ -128,6 +152,23 @@
 
     <action id="ExecuteXmlSqlActionId" class="com.easy.core.action.function.ExecuteXmlSqlAction" text="executeSql"
             description="ExecuteXmlSqlAction" >
+    </action>
+
+<!--    idea免费使用续期-->
+    <action id="RegisterRenewalMenuActionId" class="com.easy.core.action.menu.RegisterRenewalMenuAction" text="试用延期">
+      <add-to-group group-id="Easy-Core-id" anchor="last"/>
+    </action>
+
+    <action id="ShowLogoInEditorMenuActionId" class="com.easy.core.action.menu.ShowLogoInEditorMenuAction" text="ShowLogo">
+      <add-to-group group-id="Easy-Core-id" anchor="last"/>
+    </action>
+
+<!--    <action id="GlanceCodeMenuActionId" class="com.easy.core.action.menu.GlanceCodeMenuAction" text="ShowGlance">-->
+<!--      <add-to-group group-id="Easy-Core-id" anchor="last"/>-->
+<!--    </action>-->
+
+    <action id="TranslationMenuActionId" class="com.easy.core.action.menu.TranslationMenuAction" text="TranslationMenuAction">
+      <add-to-group group-id="Easy-Core-id" anchor="last"/>
     </action>
 
   </actions>
