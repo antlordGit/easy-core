@@ -18,13 +18,17 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.ui.UIUtil;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrBuilder;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.*;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -49,6 +53,8 @@ public class GeneratorFrame extends JBPanel {
     private String tableComment;
     private String author;
     private String nameSpace;
+    private List<List<String>> colDataList = Lists.newArrayList();
+
 
     public GeneratorFrame() {
         super(new BorderLayout());
@@ -220,7 +226,7 @@ public class GeneratorFrame extends JBPanel {
 
             if (StringUtils.isNotBlank(pojoPath.getText())) {
                 jsonObject1.put("pojoPath", pojoPath.getText());
-                fileList.add(new File(pojoPath.getText() + "/" + nameSpace + "POJO.java"));
+                fileList.add(new File(pojoPath.getText() + "/" + nameSpace + ".java"));
             }
 
             if (StringUtils.isNotBlank(controllerPath.getText())) {
@@ -364,13 +370,22 @@ public class GeneratorFrame extends JBPanel {
             String servicePath1 = servicePath.getText().substring(servicePath.getText().indexOf("java") + 5);
             String packageText1 = servicePath1.replaceAll("([/\\\\])", ".") + "." + nameSpace + "Service";
 
+
+            String pojoJava = pojoPath.getText().substring(pojoPath.getText().indexOf("java") + 5);
+            String pojoPackageText = pojoJava.replaceAll("([/\\\\])", ".") + "." + nameSpace;
+
             String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             String text = "package " + packageText + ";"
                     + "\n\nimport " + packageText1 + ";" +
                     "\nimport org.springframework.beans.factory.annotation.Autowired;" +
                     "\nimport org.springframework.web.bind.annotation.RequestMapping;" +
+                    "\nimport org.springframework.web.bind.annotation.RequestBody;" +
+                    "\nimport org.springframework.web.bind.annotation.PostMapping;" +
                     "\nimport org.springframework.web.bind.annotation.RestController;" +
+                    "\nimport java.util.List;" +
                     "\nimport lombok.extern.slf4j.Slf4j;" +
+                    "\nimport com.wenge.appframe.core.bean.Result;" +
+                    "\nimport " + pojoPackageText + ";" +
                     "\n\n/**\n" +
                     " * Description: " + tableComment + "接口\n" +
                     " * @Author: " + author + "\n" +
@@ -390,7 +405,58 @@ public class GeneratorFrame extends JBPanel {
                     "\t */\n" +
                     "\t@Autowired\n" +
                     "\tprivate " + serviceFiled + " " + serviceFileds + ";");
-            sb.append("\n}");
+
+            String fieldName = nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1);
+
+            // 新增接口
+            StringBuilder addText = new StringBuilder();
+            String serverName = "add" + nameSpace;
+            addText.append("\n\n\t/**\n" +
+                    "\t * 新增" + tableComment + "\n" +
+                    "\t */\n" +
+                    "\t@PostMapping(\"/" + serverName + "\")\n" +
+                    "\tpublic Result " + serverName + "(@RequestBody " + nameSpace + " " + fieldName + ") {\n" +
+                    "\t\treturn " + serviceFileds + "." + serverName + "(" + fieldName + ");\n" +
+                    "\t}");
+            sb.append(addText);
+
+            // 查询接口
+            StringBuilder searchText = new StringBuilder();
+            serverName = "get" + nameSpace + "List";
+            searchText.append("\n\n\t/**\n" +
+                    "\t * 查询" + tableComment + "列表\n" +
+                    "\t */\n" +
+                    "\t@PostMapping(\"/" + serverName + "\")\n" +
+                    "\tpublic Result " + serverName + "(@RequestBody " + nameSpace + " " + fieldName + ") {\n" +
+                    "\t\treturn " + serviceFileds + "." + serverName + "(" + fieldName + ");\n" +
+                    "\t}");
+            sb.append(searchText);
+
+            // 更新接口
+            StringBuilder updateText = new StringBuilder();
+            serverName = "update" + nameSpace;
+            updateText.append("\n\n\t/**\n" +
+                    "\t * 更新" + tableComment + "\n" +
+                    "\t */\n" +
+                    "\t@PostMapping(\"/" + serverName + "\")\n" +
+                    "\tpublic Result " + serverName + "(@RequestBody " + nameSpace + " " + fieldName + ") {\n" +
+                    "\t\treturn " + serviceFileds + "." + serverName + "(" + fieldName + ");\n" +
+                    "\t}");
+            sb.append(updateText);
+
+            // 删除接口
+            StringBuilder deleteText = new StringBuilder();
+            serverName = "delete" + nameSpace;
+            deleteText.append("\n\n\t/**\n" +
+                    "\t * 删除" + tableComment + "\n" +
+                    "\t */\n" +
+                    "\t@PostMapping(\"/" + serverName + "\")\n" +
+                    "\tpublic Result " + serverName + "(@RequestBody List<String> idList) {\n" +
+                    "\t\treturn " + serviceFileds + "." + serverName + "(idList);\n" +
+                    "\t}");
+            sb.append(deleteText);
+
+            sb.append("\n\n}");
             bw.write(sb.toString());
             bw.flush();
         } catch (Exception e) {
@@ -437,11 +503,20 @@ public class GeneratorFrame extends JBPanel {
             java = mapperPath.getText().substring(mapperPath.getText().indexOf("java") + 5);
             String mapper = java.replaceAll("([/\\\\])", ".") + "." + nameSpace;
 
+            String pojoJava = pojoPath.getText().substring(pojoPath.getText().indexOf("java") + 5);
+            String pojoPackageText = pojoJava.replaceAll("([/\\\\])", ".") + "." + nameSpace;
+
             String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             String text = "package " + packageText + ";"
                     + "\n\nimport " + service + "Service;" +
                     "\nimport " + mapper + "Mapper;" +
                     "\nimport org.springframework.stereotype.Service;" +
+                    "\nimport com.github.pagehelper.PageHelper;" +
+                    "\nimport com.github.pagehelper.PageInfo;" +
+                    "\nimport com.github.pagehelper.Page;" +
+                    "\nimport java.util.List;" +
+                    "\nimport com.wenge.appframe.core.bean.Result;" +
+                    "\nimport " + pojoPackageText + ";" +
                     "\nimport lombok.extern.slf4j.Slf4j;" +
                     "\nimport org.springframework.beans.factory.annotation.Autowired;" +
                     "\n\n/**\n" +
@@ -462,6 +537,57 @@ public class GeneratorFrame extends JBPanel {
                     "\t */\n" +
                     "\t@Autowired\n" +
                     "\tprivate " + mapperFiled + " " + mapperFileds + ";");
+
+            String fieldName = nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1);
+
+            // 新增实现
+            StringBuilder addText = new StringBuilder();
+            String serverName = "add" + nameSpace;
+            addText.append("\n\n" +
+                    "\t@Override\n" +
+                    "\tpublic Result " + serverName + "(" + nameSpace + " " + fieldName + "){\n" +
+                    "\t\t" + mapperFileds + "." + serverName + "(" + fieldName + ");\n" +
+                    "\t\treturn Result.success();\n" +
+                    "\t}");
+            sb.append(addText);
+
+            // 查询实现
+            StringBuilder searchText = new StringBuilder();
+            serverName = "get" + nameSpace + "List";
+            searchText.append("\n\n" +
+                    "\t@Override\n" +
+                    "\tpublic Result " + serverName + "(" + nameSpace + " " + fieldName + "){\n" +
+                    "\t\tPage<" + nameSpace + "> page = PageHelper.startPage(" + fieldName + ".getPageNo(), " + fieldName + ".getPageSize());\n" +
+                    "\t\t" + mapperFileds + "." + serverName + "(" + fieldName + ");\n" +
+                    "\t\tPageInfo<" + nameSpace + "> pageInfo = PageInfo.of(page);\n" +
+                    "\t\treturn Result.success(pageInfo);\n" +
+                    "\t}");
+            sb.append(searchText);
+
+            // 更新实现
+            StringBuilder updateText = new StringBuilder();
+            serverName = "update" + nameSpace;
+            updateText.append("\n\n" +
+                    "\t@Override\n" +
+                    "\tpublic Result " + serverName + "(" + nameSpace + " " + fieldName + "){\n" +
+                    "\t\t" + mapperFileds + "." + serverName + "(" + fieldName + ");\n" +
+                    "\t\treturn Result.success();\n" +
+                    "\t}");
+            sb.append(updateText);
+
+            // 删除实现
+            StringBuilder deleteText = new StringBuilder();
+            serverName = "delete" + nameSpace;
+            deleteText.append("\n\n" +
+                    "\t@Override\n" +
+                    "\tpublic Result " + serverName + "(List<String> idList){\n" +
+                    "\t\t" + mapperFileds + "." + serverName + "(idList);\n" +
+                    "\t\treturn Result.success();\n" +
+                    "\t}");
+
+            sb.append(deleteText);
+
+
             sb.append("\n}");
             bw.write(sb.toString());
             bw.flush();
@@ -505,9 +631,16 @@ public class GeneratorFrame extends JBPanel {
             // bw.newLine();
             String java = servicePath.getText().substring(servicePath.getText().indexOf("java") + 5);
             String packageText = java.replaceAll("([/\\\\])", ".");
+
+            String pojoJava = pojoPath.getText().substring(pojoPath.getText().indexOf("java") + 5);
+            String pojoPackageText = pojoJava.replaceAll("([/\\\\])", ".") + "." + nameSpace;
+
             String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            String text = "package " + packageText + ";"
-                    + "\n\n/**\n" +
+            String text = "package " + packageText + ";" +
+                    "\nimport com.wenge.appframe.core.bean.Result;" +
+                    "\nimport java.util.List;" +
+                    "\nimport " + pojoPackageText + ";" +
+                    "\n\n/**\n" +
                     " * Description: " + tableComment + "服务类\n" +
                     " * @Author: " + author + "\n" +
                     " * Version: 1.0\n" +
@@ -516,7 +649,34 @@ public class GeneratorFrame extends JBPanel {
                     " */" +
                     "\npublic interface " + nameSpace + "Service" + " {";
             StringBuilder sb = new StringBuilder(text);
-            sb.append("\n}");
+
+            String fieldName = nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1);
+
+            // 新增服务
+            StringBuilder addText = new StringBuilder();
+            String serverName = "add" + nameSpace;
+            addText.append("\n\n    Result " + serverName + "(" + nameSpace + " " + fieldName + ");");
+            sb.append(addText);
+
+            // 查询服务
+            StringBuilder searchText = new StringBuilder();
+            serverName = "get" + nameSpace + "List";
+            searchText.append("\n\n    Result " + serverName + "(" + nameSpace + " " + fieldName + ");");
+            sb.append(searchText);
+
+            // 更新服务
+            StringBuilder updateText = new StringBuilder();
+            serverName = "update" + nameSpace;
+            updateText.append("\n\n    Result " + serverName + "(" + nameSpace + " " + fieldName + ");");
+            sb.append(updateText);
+
+            // 删除服务
+            StringBuilder deleteText = new StringBuilder();
+            serverName = "delete" + nameSpace;
+            deleteText.append("\n\n    Result " + serverName + "(List<String> idList);");
+            sb.append(deleteText);
+
+            sb.append("\n\n}");
             bw.write(sb.toString());
             bw.flush();
         } catch (Exception e) {
@@ -551,6 +711,7 @@ public class GeneratorFrame extends JBPanel {
                 file.createNewFile();
             }
 
+
             fos = new FileOutputStream(file);
             outputStreamWriter = new OutputStreamWriter(fos, "UTF-8");
             bw = new BufferedWriter(outputStreamWriter);
@@ -562,9 +723,124 @@ public class GeneratorFrame extends JBPanel {
                     "<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\" >\n" +
                     "<!-- 映射文件，映射到对应的SQL接口 -->\n" +
                     "<mapper namespace=\"" + namespace + "\">\n" +
-                    "\t\n" +
-                    "</mapper>";
-            bw.write(text);
+                    "\t\n";
+            StrBuilder sb = new StrBuilder(text);
+
+            // 新增
+            StrBuilder addText = new StrBuilder();
+
+
+            addText.append("    <insert id=\"add" + nameSpace + "\">");
+            addText.append("\n        insert into " + dbTabel.getText() + "(");
+
+            boolean isFirst = true;
+            for (List<String> strings : colDataList) {
+                if (StringUtils.isNotBlank(strings.get(5)) || "id".equals(strings.get(2))) {
+                    continue;
+                }
+                if (!isFirst) {
+                    addText.append(",");
+                }
+                addText.append("\n                " + strings.get(2));
+                isFirst = false;
+            }
+            addText.append(")");
+            addText.append("\n        value (\n");
+
+            isFirst = true;
+            for (List<String> strings : colDataList) {
+                if (StringUtils.isNotBlank(strings.get(5)) || "id".equals(strings.get(2))) {
+                    continue;
+                }
+                if (!isFirst) {
+                    addText.append(",\n");
+                }
+                addText.append("                #{param." + StrUtil.toCamelCase(strings.get(2)) + "}");
+                isFirst = false;
+            }
+
+            addText.append("\n        )");
+
+            addText.append("\n    </insert>\n\n");
+            sb.append(addText);
+
+
+            // 查询
+            StrBuilder searchText = new StrBuilder();
+            String pojoJava = pojoPath.getText().substring(pojoPath.getText().indexOf("java") + 5);
+            String pojoPackageText = pojoJava.replaceAll("([/\\\\])", ".");
+
+            searchText.append("    <select id=\"get" + nameSpace + "List\" resultType=\"" + pojoPackageText + "." + nameSpace +"\">");
+
+            searchText.append("\n        SELECT");
+            isFirst = true;
+            for (List<String> strings : colDataList) {
+                if (!isFirst) {
+                    searchText.append(",");
+                }
+                searchText.append("\n                " + strings.get(2));
+                isFirst = false;
+            }
+            searchText.append("\n        from " + dbTabel.getText());
+            searchText.append("\n        <where>");
+            searchText.append("\n                and delete_flag = 0");
+
+            for (List<String> strings : colDataList) {
+                searchText.append("\n            <if test = \"" + StrUtil.toCamelCase(strings.get(2)) + " != null and " + StrUtil.toCamelCase(strings.get(2)) + " != '' \">\n" +
+                        "                and " + strings.get(2) + " = #{" + StrUtil.toCamelCase(strings.get(2)) + "}\n" +
+                        "            </if>");
+
+            }
+
+
+            searchText.append("\n        </where>");
+            searchText.append("\n       order by update_time desc");
+            searchText.append("\n    </select>\n\n");
+            sb.append(searchText);
+
+            // 更新
+            StrBuilder updateText = new StrBuilder();
+
+
+            updateText.append("    <update id=\"update" + nameSpace + "\">");
+            updateText.append("\n        update " + dbTabel.getText());
+            updateText.append("\n        <set>");
+
+            for (List<String> strings : colDataList) {
+                if ("id".equals(strings.get(2))
+                        || "create_time".equals(strings.get(2))
+                        || "delete_flag".equals(strings.get(2))
+                        || "update_time".equals(strings.get(2))) {
+                    continue;
+                }
+                updateText.append("\n            " + strings.get(2) + " = #{param." + StrUtil.toCamelCase(strings.get(2)) + "},");
+            }
+            updateText.append("\n        </set>");
+            updateText.append("\n        <where>");
+            updateText.append("\n            id = #{param.id}");
+            updateText.append("\n        </where>");
+
+            updateText.append("\n    </update>");
+            sb.append(updateText);
+
+
+            // 删除
+            StrBuilder deleteText = new StrBuilder();
+            deleteText.append("\n\n    <delete id=\"delete" + nameSpace + "\">");
+            deleteText.append("\n        delete from " + dbTabel.getText());
+            deleteText.append("\n        <where>\n" +
+                    "            id in\n" +
+                    "            <foreach collection=\"idList\" item=\"item\" separator=\",\" open=\"(\" close=\")\">\n" +
+                    "                #{item}\n" +
+                    "            </foreach>\n" +
+                    "        </where>\n" +
+                    "    </delete>");
+            sb.append(deleteText);
+
+
+
+            sb.append("\n\n</mapper>");
+            bw.write(sb.toString());
             bw.flush();
         } catch (Exception e) {
 //            e.printStackTrace();
@@ -606,8 +882,15 @@ public class GeneratorFrame extends JBPanel {
             String java = mapperPath.getText().substring(mapperPath.getText().indexOf("java") + 5);
             String packageText = java.replaceAll("([/\\\\])", ".");
             String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+            String pojoPackageText = pojoPath.getText().substring(pojoPath.getText().indexOf("java") + 5);
+            pojoPackageText = pojoPackageText.replaceAll("([/\\\\])", ".") + "." + nameSpace;
+
             String text = "package " + packageText + ";"
                     + "\n\nimport org.apache.ibatis.annotations.Mapper;"
+                    + "\nimport org.apache.ibatis.annotations.Param;"
+                    + "\nimport java.util.List;"
+                    + "\n\nimport " + pojoPackageText + ";"
                     + "\n\n/**\n" +
                     " * Description: " + tableComment + "数据库处理类\n" +
                     " * @Author: " + author + "\n" +
@@ -618,6 +901,43 @@ public class GeneratorFrame extends JBPanel {
                     "\n@Mapper" +
                     "\npublic interface " + nameSpace + "Mapper" + " {";
             StringBuilder sb = new StringBuilder(text);
+
+            // 新增
+            String addText = "\n\n" +
+                    "    /**\n" +
+                    "     * 新增" + tableComment + "\n" +
+                    "     */\n" +
+                    "    void add" + nameSpace + "(@Param(\"param\") " + nameSpace + " " + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + ");";
+            sb.append(addText);
+
+            // 查询
+            String searchText = "\n\n" +
+                    "    /**\n" +
+                    "     * 查询" + tableComment + "\n" +
+                    "     */\n" +
+                    "    List<" + nameSpace + "> get" + nameSpace + "List(" + nameSpace + " " + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + ");";
+            sb.append(searchText);
+
+
+            // 更新
+            String updateText = "\n\n" +
+                    "    /**\n" +
+                    "     * 更新" + tableComment + "\n" +
+                    "     */\n" +
+                    "    void update" + nameSpace + "(@Param(\"param\") " + nameSpace + " " + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + ");";
+            sb.append(updateText);
+
+
+            // 删除
+            String delteText = "\n\n" +
+                    "    /**\n" +
+                    "     * 删除" + tableComment + "\n" +
+                    "     */\n" +
+                    "    void delete" + nameSpace + "(@Param(\"idList\") List<String> idList);\n";
+            sb.append(delteText);
+
+
+
             sb.append("\n}");
             bw.write(sb.toString());
             bw.flush();
@@ -645,7 +965,7 @@ public class GeneratorFrame extends JBPanel {
         OutputStreamWriter outputStreamWriter = null;
         BufferedWriter bw = null;
         try {
-            File file = new File(pojoPath.getText() + "/" + nameSpace + "POJO.java");
+            File file = new File(pojoPath.getText() + "/" + nameSpace + ".java");
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
@@ -667,7 +987,7 @@ public class GeneratorFrame extends JBPanel {
 
             Class.forName("com.mysql.jdbc.Driver");
             Connection conn = DriverManager.getConnection(dbUrl.getText(), dbUser.getText(), dbPassword.getText());
-            PreparedStatement preparedStatement = conn.prepareStatement(StrUtil.format("select  table_name,column_name,column_type, column_comment\n" +
+            PreparedStatement preparedStatement = conn.prepareStatement(StrUtil.format("select  table_name,column_name,column_type, column_comment,column_default\n" +
                     "from information_schema.columns\n" +
                     "where TABLE_SCHEMA = '{}'\n" +
                     "  and table_name = '{}'", tableSchema, dbTabel.getText()));
@@ -694,6 +1014,8 @@ public class GeneratorFrame extends JBPanel {
                 }
                 dataList.add(rowData);
             }
+            colDataList.clear();
+            colDataList.addAll(dataList);
 
             ResultSet resultSet2 = preparedStatement2.executeQuery(StrUtil.format("SELECT table_name,\n" +
                     "       table_comment\n" +
@@ -735,7 +1057,7 @@ public class GeneratorFrame extends JBPanel {
                     "\n@ApiModel" +
                     "\n@Data" +
                     "\n@EqualsAndHashCode(callSuper = false)\n" +
-                    "public class " + nameSpace + "POJO" + " implements Serializable {" +
+                    "public class " + nameSpace + "" + " implements Serializable {" +
                     "\n\n\tprivate static final long serialVersionUID = 1L;";
             if (hasDateFlag) {
                 text = text.replace("${}", "\nimport java.util.Date;");
@@ -752,6 +1074,18 @@ public class GeneratorFrame extends JBPanel {
                         "\n\tprivate " + tableInfo.getType() + " " + StrUtil.toCamelCase(tableInfo.getName()) + ";";
                 sb.append(filed);
             }
+
+            sb.append("\n\n" +
+                    "\t/**\n" +
+                    "\t * 页码\n" +
+                    "\t */\n" +
+                    "\tprivate Integer pageNo;\n" +
+                    "\n" +
+                    "\t/**\n" +
+                    "\t * 记录数\n" +
+                    "\t */\n" +
+                    "\tprivate Integer pageSize;\n");
+
             sb.append("\n}");
             bw.write(sb.toString());
             bw.flush();
@@ -776,16 +1110,26 @@ public class GeneratorFrame extends JBPanel {
         Map<String, String> map = Maps.newHashMap();
         map.put("varchar", "String");
         map.put("VARCHAR", "String");
+        map.put("tinyint", "Integer");
+        map.put("TINYINT", "Integer");
         map.put("int", "Integer");
         map.put("INT", "Integer");
-        map.put("datetime", "Date");
-        map.put("DATETIME", "Date");
-        map.put("timestamp", "Date");
-        map.put("TIMESTAMP", "Date");
+        map.put("bigint", "Long");
+        map.put("BIGINT", "Long");
+        map.put("decimal", "BigDecimal");
+        map.put("DECIMAL", "BigDecimal");
+        map.put("datetime", "String");
+        map.put("DATETIME", "String");
+        map.put("timestamp", "String");
+        map.put("TIMESTAMP", "String");
         map.put("numeric", "Integer");
         map.put("NUMERIC", "Integer");
         map.put("text", "String");
         map.put("TEXT", "String");
+        map.put("longtext", "String");
+        map.put("LONGTEXT", "String");
+        map.put("date", "String");
+        map.put("DATE", "String");
         return map;
     }
 }

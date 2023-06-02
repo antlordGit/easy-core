@@ -2,13 +2,9 @@ package com.easy.core.install;
 
 import com.intellij.execution.filters.ConsoleFilterProvider;
 import com.intellij.execution.filters.Filter;
-import com.intellij.execution.filters.HyperlinkInfo;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.impl.file.impl.JavaFileManager;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,28 +41,39 @@ public class MainConsoleFilterProvider implements ConsoleFilterProvider {
                     ResultItem item = new ResultItem(offset - length, offset, null, textAttributes);
                     list.add(item);
                     result = new Result(list);
-                } else if (log.contains("controller") || log.contains("service.impl")) {
+                } else if (log.contains("controller") || log.contains("ServiceImpl")) {
                     // 普通日志为紫色
-                    TextAttributes textAttributes = new TextAttributes();
-                    textAttributes.setForegroundColor(new JBColor(new Color(98, 214, 255), new Color(98, 214, 255)));
-
-                    // 点击日志跳转
-                    HyperlinkInfo info = new HyperlinkInfo() {
-                        @Override
-                        public void navigate(Project project) {
-                            if (log.contains(":] --") && log.contains("[com")) {
-                                String classPath = log.substring(log.indexOf("[com") + 1, log.indexOf(":] --"));
-                                PsiClass psiClass = JavaFileManager.getInstance(project).findClass(classPath, GlobalSearchScope.projectScope(project));
-//                        Stream.of(psiClass.getChildren()).filter(p->p.getText().contains())
-                            }
-                            navigate(project);
-                        }
-                    };
-
-//            ResultItem item = new ResultItem(offset - log.length(), offset, info, textAttributes);
-                    ResultItem item = new ResultItem(offset - log.length(), offset, null, textAttributes);
-                    list.add(item);
-                    result = new Result(list);
+//                     TextAttributes textAttributes = new TextAttributes();
+//                     textAttributes.setForegroundColor(new JBColor(new Color(255, 150, 255), new Color(255, 150, 255)));
+//
+//                     // 点击日志跳转
+// //                     HyperlinkInfo info = new HyperlinkInfo() {
+// //                         @Override
+// //                         public void navigate(Project project) {
+// //                             if (log.contains(":] --") && log.contains("[com")) {
+// //                                 String classPath = log.substring(log.indexOf("[com") + 1, log.indexOf(":] --"));
+// //                                 PsiClass psiClass = JavaFileManager.getInstance(project).findClass(classPath, GlobalSearchScope.projectScope(project));
+// // //                        Stream.of(psiClass.getChildren()).filter(p->p.getText().contains())
+// //                             }
+// //                             navigate(project);
+// //                         }
+// //                     };
+//
+// //            ResultItem item = new ResultItem(offset - log.length(), offset, info, textAttributes);
+// //                     ResultItem item = new ResultItem(offset - log.length(), offset, null, textAttributes);
+// //                     list.add(item);
+// //                     result = new Result(list);
+//
+//                     int start = log.indexOf("controller");
+//                     if (start == -1) {
+//                         start = log.indexOf("ServiceImpl") + 11;
+//                     } else {
+//                         start = start + 10;
+//                     }
+//                     int length = log.length() - start;
+//                     ResultItem item = new ResultItem(offset - length, offset, null, textAttributes);
+//                     list.add(item);
+//                     result = new Result(list);
                 }
             } catch (Exception e) {
                 System.out.println("MainConsoleFilter.applyFilter");

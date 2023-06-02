@@ -18,7 +18,7 @@ public class SqlFormatterUtil {
     }
 
     public static String format(String source) {
-        return (new SqlFormatterUtil.FormatProcess(source)).perform();
+        return (new FormatProcess(source)).perform();
     }
 
     static {
