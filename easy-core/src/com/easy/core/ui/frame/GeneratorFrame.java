@@ -340,6 +340,7 @@ public class GeneratorFrame extends JBPanel {
         createService();
         createServiceImpl();
         createController();
+        createHooks();
     }
 
     private void createController() throws IOException {
@@ -1132,4 +1133,49 @@ public class GeneratorFrame extends JBPanel {
         map.put("DATE", "String");
         return map;
     }
+
+    private void createHooks() {
+        createUrlTs();
+        createApiTs();
+    }
+
+    private void createUrlTs() {
+        // export const UPDATE_ROLE_USER_URL:string = '/user/updateRoleUser'
+        String addUrl = "\n\nexport const ADD_" + dbTabelAlia.getText().toUpperCase() + "_URL:string = '/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "/add" + nameSpace + "'";
+        String updateUrl = "\n\nexport const UPDATE_" + dbTabelAlia.getText().toUpperCase() + "_URL:string = '/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "/update" + nameSpace + "'";
+        String getUrl = "\n\nexport const GET_" + dbTabelAlia.getText().toUpperCase() + "_URL:string = '/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "/get" + nameSpace + "List'";
+        String deleteUrl = "\n\nexport const DELETE_" + dbTabelAlia.getText().toUpperCase() + "_URL:string = '/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "/update" + nameSpace + "'";
+        System.out.println("=============================");
+        System.out.println(addUrl);
+        System.out.println(updateUrl);
+        System.out.println(getUrl);
+        System.out.println(deleteUrl);
+        System.out.println("=============================");
+    }
+
+    private void createApiTs() {
+        String addApi = "\n\nexport const add" + nameSpace + "Api = function (param: any) {\n" +
+                "    return POST(url.ADD_" + dbTabelAlia.getText().toUpperCase() + "_URL, param)\n" +
+                "};";
+
+        String getApi = "\n\nexport const get" + nameSpace + "ListApi = function (param: any) {\n" +
+                "    return POST(url.GET_" + dbTabelAlia.getText().toUpperCase() + "_URL, param)\n" +
+                "};\n";
+
+        String updateApi = "\n\nexport const update" + nameSpace + "Api = function (param: any) {\n" +
+                "    return POST(url.UPDATE_" + dbTabelAlia.getText().toUpperCase() + "_URL, param)\n" +
+                "};";
+
+        String deleteApi = "\n\nexport const delete" + nameSpace + "Api = function (param: string[]) {\n" +
+                "    return POST(url.DELETE_" + dbTabelAlia.getText().toUpperCase() + "_URL, param)\n" +
+                "};";
+
+        System.out.println("=============================");
+        System.out.println(addApi);
+        System.out.println(getApi);
+        System.out.println(updateApi);
+        System.out.println(deleteApi);
+        System.out.println("=============================");
+    }
+
 }
