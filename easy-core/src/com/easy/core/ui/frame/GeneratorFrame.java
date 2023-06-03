@@ -1339,7 +1339,7 @@ public class GeneratorFrame extends JBPanel {
             if (StringUtils.isNotBlank(strings.get(5)) || "id".equals(strings.get(2))) {
                 continue;
             }
-            sb.append("\n{label: '" + strings.get(4) + "', type: 'input', prop: '" + StrUtil.toCamelCase(strings.get(2)) + "', width: 80, filed: '" + StrUtil.toCamelCase(strings.get(2)) + "'},");
+            sb.append("\n        {label: '" + strings.get(4) + "', type: 'input', prop: '" + StrUtil.toCamelCase(strings.get(2)) + "', width: 80, filed: '" + StrUtil.toCamelCase(strings.get(2)) + "'},");
         }
 
         sb.append("\n    ],");
@@ -1349,7 +1349,7 @@ public class GeneratorFrame extends JBPanel {
                 continue;
             }
 
-            sb.append("\n        "+strings.get(2)+": [\n" +
+            sb.append("\n        " + StrUtil.toCamelCase(strings.get(2)) + ": [\n" +
                     "            {required: true, message: '" + strings.get(4) + "不能为空', trigger: 'blur'},\n" +
                     "        ],");
         }
@@ -1435,7 +1435,7 @@ public class GeneratorFrame extends JBPanel {
             sb.append("\n" +
                     "        {\n" +
                     "            label: '" + strings.get(4) + "',\n" +
-                    "            field: '" + strings.get(2) + "',\n" +
+                    "            field: '" + StrUtil.toCamelCase(strings.get(2)) + "',\n" +
                     "            type: 'input',\n" +
                     "            placeholder: '" + strings.get(4) + "',\n" +
                     "        },");
@@ -1563,7 +1563,7 @@ public class GeneratorFrame extends JBPanel {
                 continue;
             }
             sb.append("\n" +
-                    "        {label: '" + strings.get(4) + "', filed: '" + strings.get(2) + "', type: 'none', minWidth: 120,},");
+                    "        {label: '" + strings.get(4) + "', filed: '" + StrUtil.toCamelCase(strings.get(2)) + "', type: 'none', minWidth: 120,},");
         }
 
         sb.append("\n" +
