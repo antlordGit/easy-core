@@ -1176,7 +1176,7 @@ public class GeneratorFrame extends JBPanel {
         String addUrl = "\n\nexport const ADD_" + dbTabelAlia.getText().toUpperCase() + "_URL:string = '/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "/add" + nameSpace + "'";
         String updateUrl = "\n\nexport const UPDATE_" + dbTabelAlia.getText().toUpperCase() + "_URL:string = '/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "/update" + nameSpace + "'";
         String getUrl = "\n\nexport const GET_" + dbTabelAlia.getText().toUpperCase() + "_URL:string = '/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "/get" + nameSpace + "List'";
-        String deleteUrl = "\n\nexport const DELETE_" + dbTabelAlia.getText().toUpperCase() + "_URL:string = '/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "/update" + nameSpace + "'";
+        String deleteUrl = "\n\nexport const DELETE_" + dbTabelAlia.getText().toUpperCase() + "_URL:string = '/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "/delete" + nameSpace + "'";
 
         fileList.add(new File(hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/api/url.ts"));
         StringBuilder sb = new StringBuilder();
