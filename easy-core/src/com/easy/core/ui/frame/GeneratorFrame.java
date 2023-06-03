@@ -25,6 +25,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -48,6 +49,7 @@ public class GeneratorFrame extends JBPanel {
     private JTextField servicePath;
     private JTextField controllerPath;
     private JTextField pojoPath;
+    private JTextField hooksPath;
     private List<File> fileList = Lists.newArrayList();
     private Map<String, Boolean> map = Maps.newHashMap();
     private String tableComment;
@@ -207,6 +209,24 @@ public class GeneratorFrame extends JBPanel {
         });
         panel8.add(button5, BorderLayout.EAST);
         parentPanel.add(panel8);
+
+
+        String hooksPathStr = jsonObject.getString("hooksPath");
+        JPanel panel15 = new JPanel(new BorderLayout());
+        panel15.add(new JLabel("hooks路径"), BorderLayout.WEST);
+        panel15.add(hooksPath = new JTextField(StringUtils.isBlank(hooksPathStr) ? "" : hooksPathStr), BorderLayout.CENTER);
+        Button button16 = new Button("浏览");
+        button16.setBackground(labelBackground);
+        button16.addActionListener(e->{
+            final FileChooserDescriptor xmlDescriptor = FileChooserDescriptorFactory.createSingleFileDescriptor();
+            xmlDescriptor.setTitle("Choose Path");
+            VirtualFile virtualFile = FileChooser.chooseFile(xmlDescriptor, DocumentListener.project, null);
+            if (null != virtualFile) {
+                hooksPath.setText(virtualFile.getPath());
+            }
+        });
+        panel15.add(button16, BorderLayout.EAST);
+        parentPanel.add(panel15);
 
         JPanel panel10 = new JPanel(new BorderLayout());
         Button button = new Button("创建文件");
@@ -1135,22 +1155,40 @@ public class GeneratorFrame extends JBPanel {
     }
 
     private void createHooks() {
-        createUrlTs();
-        createApiTs();
+        String hooksPathText = hooksPath.getText();
+        if (StringUtils.isNotBlank(hooksPathText)) {
+            createUrlTs();
+            createApiTs();
+            createAddTs();
+            createDeleteTs();
+            createEditFormTs();
+            createFormatterTs();
+            createGetData();
+            createOperaConfig();
+            createOption();
+            createPageTs();
+            createTableConfig();
+            createUpdateTs();
+        }
     }
 
     private void createUrlTs() {
-        // export const UPDATE_ROLE_USER_URL:string = '/user/updateRoleUser'
         String addUrl = "\n\nexport const ADD_" + dbTabelAlia.getText().toUpperCase() + "_URL:string = '/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "/add" + nameSpace + "'";
         String updateUrl = "\n\nexport const UPDATE_" + dbTabelAlia.getText().toUpperCase() + "_URL:string = '/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "/update" + nameSpace + "'";
         String getUrl = "\n\nexport const GET_" + dbTabelAlia.getText().toUpperCase() + "_URL:string = '/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "/get" + nameSpace + "List'";
         String deleteUrl = "\n\nexport const DELETE_" + dbTabelAlia.getText().toUpperCase() + "_URL:string = '/" + StrUtil.toCamelCase(dbTabelAlia.getText()) + "/update" + nameSpace + "'";
-        System.out.println("=============================");
-        System.out.println(addUrl);
-        System.out.println(updateUrl);
-        System.out.println(getUrl);
-        System.out.println(deleteUrl);
-        System.out.println("=============================");
+
+        fileList.add(new File(hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/api/url.ts"));
+        StringBuilder sb = new StringBuilder();
+        sb.append(addUrl);
+        sb.append(updateUrl);
+        sb.append(getUrl);
+        sb.append(deleteUrl);
+        try {
+            write(sb.toString(), hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/api/url.ts");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void createApiTs() {
@@ -1170,12 +1208,491 @@ public class GeneratorFrame extends JBPanel {
                 "    return POST(url.DELETE_" + dbTabelAlia.getText().toUpperCase() + "_URL, param)\n" +
                 "};";
 
-        System.out.println("=============================");
-        System.out.println(addApi);
-        System.out.println(getApi);
-        System.out.println(updateApi);
-        System.out.println(deleteApi);
-        System.out.println("=============================");
+        fileList.add(new File(hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/api/api.ts"));
+        StringBuilder sb = new StringBuilder();
+        sb.append(addApi);
+        sb.append(getApi);
+        sb.append(updateApi);
+        sb.append(deleteApi);
+        try {
+            write(sb.toString(), hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/api/api.ts");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createAddTs() {
+        String api = "add" + nameSpace + "Api";
+        String module = nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1);
+        String addTs = "import {" + api + "} from \"@/api/api\";\n" +
+                "import {RES_CODE} from \"@/api/url\";\n" +
+                "import {ElMessage} from \"element-plus\";\n" +
+                "import getData from \"@/hooks/" + module + "/getData\";\n" +
+                "import editForm from \"@/hooks/" + module + "/editForm\";\n" +
+                "\n" +
+                "export default function () {\n" +
+                "    " + api + "(editForm.form)\n" +
+                "        .then((res: any) => {\n" +
+                "            let {code, msg} = res;\n" +
+                "            if (code === RES_CODE) {\n" +
+                "                ElMessage({\n" +
+                "                    message: '成功',\n" +
+                "                    type: 'success',\n" +
+                "                });\n" +
+                "                getData();\n" +
+                "                editForm.visible = false;\n" +
+                "            } else {\n" +
+                "                ElMessage({\n" +
+                "                    message: msg,\n" +
+                "                    type: 'error',\n" +
+                "                });\n" +
+                "            }\n" +
+                "        });\n" +
+                "};\n";
+
+        fileList.add(new File(hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/add.ts"));
+        try {
+            write(addTs, hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/add.ts");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createDeleteTs() {
+        String api = "delete" + nameSpace + "Api";
+        String module = nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1);
+
+        String deleteText = "// 删除数据\n" +
+                "import {ElMessage, ElMessageBox} from \"element-plus\";\n" +
+                "import {" + api + "} from \"@/api/api\";\n" +
+                "import {RES_CODE} from \"@/api/url\";\n" +
+                "import getData from \"@/hooks/" + module + "/getData\";\n" +
+                "\n" +
+                "export default function (idList: any[]) {\n" +
+                "    if (!idList || idList.length == 0) {\n" +
+                "        ElMessage({\n" +
+                "            message: '请选择你要删除的数据',\n" +
+                "            type: 'warning',\n" +
+                "        });\n" +
+                "        return\n" +
+                "    }\n" +
+                "\n" +
+                "    ElMessageBox.confirm(\n" +
+                "        '确认删除?',\n" +
+                "        '删除模块',\n" +
+                "        {\n" +
+                "            confirmButtonText: '确认',\n" +
+                "            cancelButtonText: '取消',\n" +
+                "            type: 'warning',\n" +
+                "        }\n" +
+                "    )\n" +
+                "        .then(() => {\n" +
+                "            " + api + "(idList)\n" +
+                "                .then((data: any) => {\n" +
+                "                    if (RES_CODE === data.code) {\n" +
+                "                        ElMessage({\n" +
+                "                            message: '删除成功',\n" +
+                "                            type: 'success',\n" +
+                "                        });\n" +
+                "                        getData();\n" +
+                "                    }\n" +
+                "                })\n" +
+                "                .catch(error => {\n" +
+                "                    console.log(error);\n" +
+                "                    ElMessage({\n" +
+                "                        message: '删除失败',\n" +
+                "                        type: 'error',\n" +
+                "                    });\n" +
+                "                })\n" +
+                "        })\n" +
+                "        .catch(() => {\n" +
+                "            ElMessage({\n" +
+                "                type: 'info',\n" +
+                "                message: '已取消',\n" +
+                "            })\n" +
+                "        });\n" +
+                "\n" +
+                "};\n";
+
+        fileList.add(new File(hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/delete.ts"));
+        try {
+            write(deleteText, hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/delete.ts");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createEditFormTs() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("import {reactive} from \"vue\";\n" +
+                "\n" +
+                "export default reactive({\n" +
+                "    visible: false,\n" +
+                "    tile: '',\n" +
+                "    width: 500,\n" +
+                "    form: {},\n" +
+                "    action: '',\n" +
+                "    disabled: [] as string[],\n" +
+                "    props: [");
+
+        for (List<String> strings : colDataList) {
+            if (StringUtils.isNotBlank(strings.get(5)) || "id".equals(strings.get(2))) {
+                continue;
+            }
+            sb.append("\n{label: '" + strings.get(4) + "', type: 'input', prop: '" + StrUtil.toCamelCase(strings.get(2)) + "', width: 80, filed: '" + StrUtil.toCamelCase(strings.get(2)) + "'},");
+        }
+
+        sb.append("\n    ],");
+        sb.append("\n    rules: {");
+        for (List<String> strings : colDataList) {
+            if (StringUtils.isNotBlank(strings.get(5)) || "id".equals(strings.get(2))) {
+                continue;
+            }
+
+            sb.append("\n        "+strings.get(2)+": [\n" +
+                    "            {required: true, message: '" + strings.get(4) + "不能为空', trigger: 'blur'},\n" +
+                    "        ],");
+        }
+
+        sb.append("\n    }\n" +
+                "});");
+
+        fileList.add(new File(hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/editForm.ts"));
+        try {
+            write(sb.toString(), hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/editForm.ts");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createFormatterTs() {
+        String text = "export const formatters = function (row: any) {\n" +
+                "    return row.id\n" +
+                "};\n";
+        fileList.add(new File(hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/formatters.ts"));
+        try {
+            write(text, hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/formatters.ts");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createGetData() {
+        String api = "get" + nameSpace + "ListApi";
+        String module = nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1);
+
+        String text = "// 查询表格数据\n" +
+                "import operaConfig from \"@/hooks/" + module + "/operaConfig\";\n" +
+                "import {" + api + "} from \"@/api/api\";\n" +
+                "import tableInfo from \"@/hooks/" + module + "/tableInfo\";\n" +
+                "\n" +
+                "export default function () {\n" +
+                "    tableInfo.loading = true;\n" +
+                "    let param = {\n" +
+                "        ...operaConfig.param,\n" +
+                "        pageNo: tableInfo.pageInfo.currentPage,\n" +
+                "        pageSize: tableInfo.pageInfo.pageSize,\n" +
+                "    };\n" +
+                "    " + api + "(param as any)\n" +
+                "        .then(res => {\n" +
+                "            tableInfo.tableList = res.data.list;\n" +
+                "\n" +
+                "            tableInfo.pageInfo.total = res.data.total;\n" +
+                "            tableInfo.loading = false;\n" +
+                "        }, error => {\n" +
+                "            tableInfo.loading = false;\n" +
+                "        });\n" +
+                "};\n";
+
+        fileList.add(new File(hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/getData.ts"));
+        try {
+            write(text, hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/getData.ts");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createOperaConfig() {
+        String module = nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("import {reactive} from \"vue\";\n" +
+                "import editForm from \"@/hooks/" + module + "/editForm\";\n" +
+                "import deleteBatch from \"@/hooks/" + module + "/delete\";\n" +
+                "import getData from \"@/hooks/" + module + "/getData\";\n" +
+                "import {statusOptionList} from \"@/hooks/" + module + "/options\";\n" +
+                "import {selected} from \"@/hooks/" + module + "/page\";\n" +
+                "\n" +
+                "export default reactive({\n" +
+                "    param: {},\n" +
+                "    labelWidth: 100,\n" +
+                "    fieldList: [");
+
+        for (List<String> strings : colDataList) {
+            if (StringUtils.isNotBlank(strings.get(5)) || "id".equals(strings.get(2))) {
+                continue;
+            }
+            sb.append("\n" +
+                    "        {\n" +
+                    "            label: '" + strings.get(4) + "',\n" +
+                    "            field: '" + strings.get(2) + "',\n" +
+                    "            type: 'input',\n" +
+                    "            placeholder: '" + strings.get(4) + "',\n" +
+                    "        },");
+        }
+
+        sb.append("\n" +
+                "        {\n" +
+                "            text: '查询',\n" +
+                "            type: 'button',\n" +
+                "            backGround: 'primary',\n" +
+                "            click() {\n" +
+                "                getData();\n" +
+                "            }\n" +
+                "        }],\n" +
+                "    butList: [\n" +
+                "        {\n" +
+                "            type: 'success',\n" +
+                "            round: true,\n" +
+                "            show: true,\n" +
+                "            size: 'small',\n" +
+                "            text: \"新增\",\n" +
+                "            click() {\n" +
+                "                editForm.form = {};\n" +
+                "                editForm.tile = '新增模块';\n" +
+                "                editForm.action = 'add';\n" +
+                "                editForm.disabled = [];\n" +
+                "                editForm.visible = true;\n" +
+                "            },\n" +
+                "        },\n" +
+                "        {\n" +
+                "            type: 'danger',\n" +
+                "            round: true,\n" +
+                "            show: true,\n" +
+                "            size: 'small',\n" +
+                "            text: \"删除\",\n" +
+                "            click() {\n" +
+                "                const idList: string[] = selected.map((item: any) => item.id as string);\n" +
+                "                deleteBatch(idList);\n" +
+                "            },\n" +
+                "        }],\n" +
+                "});");
+
+//        System.out.println(sb.toString());
+
+        fileList.add(new File(hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/operaConfig.ts"));
+        try {
+            write(sb.toString(), hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/operaConfig.ts");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void createOption() {
+        String text = "export const statusOptionList = [\n" +
+                "    {\n" +
+                "        label: '',\n" +
+                "        value: '',\n" +
+                "    }\n" +
+                "];\n" +
+                "\n";
+
+        fileList.add(new File(hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/options.ts"));
+        try {
+            write(text, hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/options.ts");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createPageTs() {
+        String module = nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1);
+        String text = "// 表格多选时，选中的数据集合\n" +
+                "import {reactive} from \"vue\";\n" +
+                "import tableInfo from \"@/hooks/" + module + "/tableInfo\";\n" +
+                "import getData from \"@/hooks/" + module + "/getData\";\n" +
+                "\n" +
+                "export const selected = reactive<any[]>([]);\n" +
+                "\n" +
+                "// 表格选中事件\n" +
+                "export const selectChange = (val: any[]) => {\n" +
+                "    selected.splice(0, selected.length);\n" +
+                "\n" +
+                "    val.forEach((item: any) => {\n" +
+                "        selected.push(item);\n" +
+                "    });\n" +
+                "}\n" +
+                "\n" +
+                "// 表格分页pageSize改变事件\n" +
+                "export const sizeChange = (pageSize: number) => {\n" +
+                "    tableInfo.pageInfo.pageSize = pageSize;\n" +
+                "    tableInfo.pageInfo.currentPage = 1;\n" +
+                "    getData();\n" +
+                "};\n" +
+                "\n" +
+                "// 表格分页pagaNo改变事件\n" +
+                "export const currentChange = (pageNo: number) => {\n" +
+                "    tableInfo.pageInfo.currentPage = pageNo;\n" +
+                "    getData();\n" +
+                "}\n";
+
+
+        fileList.add(new File(hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/page.ts"));
+        try {
+            write(text, hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/page.ts");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createTableConfig() {
+        String module = nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("// 表格配置\n" +
+                "import {reactive} from \"vue\";\n" +
+                "import editForm from \"@/hooks/" + module + "/editForm\";\n" +
+                "import deleteBatch from \"@/hooks/" + module + "/delete\";\n" +
+                "\n" +
+                "export default reactive({\n" +
+                "    props: [");
+
+        for (List<String> strings : colDataList) {
+            if (StringUtils.isNotBlank(strings.get(5)) || "id".equals(strings.get(2))) {
+                continue;
+            }
+            sb.append("\n" +
+                    "        {label: '" + strings.get(4) + "', filed: '" + strings.get(2) + "', type: 'none', minWidth: 120,},");
+        }
+
+        sb.append("\n" +
+                "    ],\n" +
+                "    operaList: {\n" +
+                "        label: '操作',\n" +
+                "        minWidth: 120,\n" +
+                "        butList: [\n" +
+                "            {\n" +
+                "                text: '编辑',\n" +
+                "                background: 'success',\n" +
+                "                plain: true,\n" +
+                "                show: true,\n" +
+                "                size: 'small',\n" +
+                "                click(row: any) {\n" +
+                "                    editForm.form = Object.assign({}, row);\n" +
+                "                    editForm.tile = '编辑模块';\n" +
+                "                    editForm.disabled = ['code', 'name'];\n" +
+                "                    editForm.action = 'update';\n" +
+                "                    editForm.visible = true;\n" +
+                "                }\n" +
+                "            },\n" +
+                "            {\n" +
+                "                text: '删除',\n" +
+                "                background: 'danger',\n" +
+                "                plain: true,\n" +
+                "                show: true,\n" +
+                "                size: 'small',\n" +
+                "                click(row: any) {\n" +
+                "                    let idList = [row.id];\n" +
+                "                    deleteBatch(idList);\n" +
+                "                }\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    },\n" +
+                "    tableList: [],\n" +
+                "    selectionFlag: true,\n" +
+                "    pageInfo: {\n" +
+                "        currentPage: 1,\n" +
+                "        pageSize: 10,\n" +
+                "        total: 0,\n" +
+                "    },\n" +
+                "    loading: false\n" +
+                "});\n");
+
+        fileList.add(new File(hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/tableInfo.ts"));
+        try {
+            write(sb.toString(), hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/tableInfo.ts");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void createUpdateTs() {
+        String module = nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1);
+        String api = "update" + nameSpace + "Api";
+
+        String text = "// 表单提交\n" +
+                "import editForm from \"@/hooks/" + module + "/editForm\";\n" +
+                "import {" + api + "} from \"@/api/api\";\n" +
+                "import {RES_CODE} from \"@/api/url\";\n" +
+                "import {ElMessage} from \"element-plus\";\n" +
+                "import getData from \"@/hooks/" + module + "/getData\";\n" +
+                "\n" +
+                "export default function () {\n" +
+                "    // 更新模块\n" +
+                "    " + api + "(editForm.form)\n" +
+                "        .then((res: any) => {\n" +
+                "            let {code, msg} = res;\n" +
+                "            if (code === RES_CODE) {\n" +
+                "                ElMessage({\n" +
+                "                    message: '成功',\n" +
+                "                    type: 'success',\n" +
+                "                });\n" +
+                "                getData();\n" +
+                "                editForm.visible = false;\n" +
+                "            } else {\n" +
+                "                ElMessage({\n" +
+                "                    message: msg,\n" +
+                "                    type: 'error',\n" +
+                "                });\n" +
+                "            }\n" +
+                "        });\n" +
+                "};\n";
+
+
+        fileList.add(new File(hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/update.ts"));
+        try {
+            write(text, hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/update.ts");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void write(String text, String fileName) throws IOException {
+        FileOutputStream fos = null;
+        OutputStreamWriter outputStreamWriter = null;
+        BufferedWriter bw = null;
+        try {
+
+            File file = new File(fileName);
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            fos = new FileOutputStream(file);
+            outputStreamWriter = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+            bw = new BufferedWriter(outputStreamWriter);
+            bw.write(text);
+            bw.flush();
+        } catch (Exception e) {
+            Messages.showInfoMessage("创建文件异常", "提示");
+        } finally {
+            if (null != fos) {
+                fos.close();
+            }
+            if (outputStreamWriter != null) {
+                outputStreamWriter.close();
+            }
+            if (null != bw) {
+                bw.close();
+            }
+        }
+
     }
 
 }

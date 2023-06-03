@@ -26,24 +26,24 @@
   <extensions defaultExtensionNs="com.intellij">
     <projectService serviceInterface="com.easy.core.service.AddClassCommentMenuService" serviceImplementation="com.easy.core.service.impl.AddClassCommentMenuServiceImpl"/>
     <projectService serviceInterface="com.easy.core.service.HumpNamingMenuService" serviceImplementation="com.easy.core.service.impl.HumpNamingMenuServiceImpl"/>
-    <projectService serviceInterface="com.easy.core.service.JsonFormatMenuService" serviceImplementation="com.easy.core.service.impl.JsonFormatMenuServiceImpl"/>
-    <projectService serviceInterface="com.easy.core.service.SqlFormatterMenuService" serviceImplementation="com.easy.core.service.impl.SqlFormatterMenuServiceImpl"/>
-    <projectService serviceInterface="com.easy.core.service.ExecuteSqlService" serviceImplementation="com.easy.core.service.impl.ExecuteSqlServiceImpl"/>
-    <projectService serviceInterface="com.easy.core.service.RestServiceService" serviceImplementation="com.easy.core.service.impl.RestServiceServiceImpl"/>
-    <projectService serviceInterface="com.easy.core.service.SqlFormatterService" serviceImplementation="com.easy.core.service.impl.SqlFormatterServiceImpl"/>
-    <projectService serviceInterface="com.easy.core.service.JsonFormatterService" serviceImplementation="com.easy.core.service.impl.JsonFormatterServiceImpl"/>
-    <projectService serviceInterface="com.easy.core.service.CopyFullUrlService" serviceImplementation="com.easy.core.service.impl.CopyFullUrlServiceImpl"/>
-    <projectService serviceInterface="com.easy.core.service.RegisterRenewalMenuService" serviceImplementation="com.easy.core.service.impl.RegisterRenewalMenuServiceImpl"/>
-    <projectService serviceInterface="com.easy.core.service.ShowLogoInEditorMenuService" serviceImplementation="com.easy.core.service.impl.ShowLogoInEditorMenuServiceImpl"/>
+<!--    <projectService serviceInterface="com.easy.core.service.JsonFormatMenuService" serviceImplementation="com.easy.core.service.impl.JsonFormatMenuServiceImpl"/>-->
+<!--    <projectService serviceInterface="com.easy.core.service.SqlFormatterMenuService" serviceImplementation="com.easy.core.service.impl.SqlFormatterMenuServiceImpl"/>-->
+<!--    <projectService serviceInterface="com.easy.core.service.ExecuteSqlService" serviceImplementation="com.easy.core.service.impl.ExecuteSqlServiceImpl"/>-->
+<!--    <projectService serviceInterface="com.easy.core.service.RestServiceService" serviceImplementation="com.easy.core.service.impl.RestServiceServiceImpl"/>-->
+<!--    <projectService serviceInterface="com.easy.core.service.SqlFormatterService" serviceImplementation="com.easy.core.service.impl.SqlFormatterServiceImpl"/>-->
+<!--    <projectService serviceInterface="com.easy.core.service.JsonFormatterService" serviceImplementation="com.easy.core.service.impl.JsonFormatterServiceImpl"/>-->
+<!--    <projectService serviceInterface="com.easy.core.service.CopyFullUrlService" serviceImplementation="com.easy.core.service.impl.CopyFullUrlServiceImpl"/>-->
+<!--    <projectService serviceInterface="com.easy.core.service.RegisterRenewalMenuService" serviceImplementation="com.easy.core.service.impl.RegisterRenewalMenuServiceImpl"/>-->
+<!--    <projectService serviceInterface="com.easy.core.service.ShowLogoInEditorMenuService" serviceImplementation="com.easy.core.service.impl.ShowLogoInEditorMenuServiceImpl"/>-->
     <toolWindow factoryClass="com.easy.core.ui.EasyFrameFactory" anchor="bottom" id="EasyTool" doNotActivateOnStart="true" icon="/icon/svg/toolWindow.svg"/>
-    <applicationService serviceImplementation="com.easy.core.storage.EasyState"/>
+<!--    <applicationService serviceImplementation="com.easy.core.storage.EasyState"/>-->
 <!--    <codeInsight.lineMarkerProvider language="JAVA" implementationClass="com.easy.core.install.JavaToXmlProvider"/>-->
 <!--    <codeInsight.lineMarkerProvider language="XML" implementationClass="com.easy.core.install.XmlToJavaProvider"/>-->
-    <consoleFilterProvider implementation="com.easy.core.install.MainConsoleFilterProvider"/>
+<!--    <consoleFilterProvider implementation="com.easy.core.install.MainConsoleFilterProvider"/>-->
 <!--    <runLineMarkerContributor language="XML" implementationClass="com.easy.core.install.MybatisXmlContributor"/>-->
 <!--    <gotoDeclarationHandler implementation="com.easy.core.install.XmlTagJumpDeclarationHandler"/>-->
 
-    <fileTypeFactory implementation="com.easy.core.fileType.api.ApiFileTypeFactory"/>
+<!--    <fileTypeFactory implementation="com.easy.core.fileType.api.ApiFileTypeFactory"/>-->
 <!--    <runLineMarkerContributor language="api" implementationClass="com.easy.core.install.ApiRunLineMarkerContributor"/>-->
 <!--    <lang.parserDefinition language="api" implementationClass="com.easy.core.fileType.api.ApiParserDefinition"/>-->
 <!--    <completion.contributor language="XML" implementationClass="com.easy.core.install.MybatisXmlCompletionContributor" id="MybatisXmlCompletionContributor"/>-->
@@ -53,27 +53,27 @@
 
   <applicationListeners>
 <!--    <listener class="com.easy.core.listener.MyDynamicPluginListener" topic="com.intellij.ide.plugins.DynamicPluginListener" />-->
-    <listener class="com.easy.core.listener.MyProjectManagerListener" topic="com.intellij.openapi.project.ProjectManagerListener" />
+<!--    <listener class="com.easy.core.listener.MyProjectManagerListener" topic="com.intellij.openapi.project.ProjectManagerListener" />-->
 <!--    <listener class="com.easy.core.listener.FileEditorListener" topic="com.intellij.openapi.editor.event.VisibleAreaListener" />-->
   </applicationListeners>
 
   <projectListeners>
-    <listener class="com.easy.core.listener.MyExecutionListener" topic="com.intellij.execution.ExecutionListener" />
+<!--    <listener class="com.easy.core.listener.MyExecutionListener" topic="com.intellij.execution.ExecutionListener" />-->
 <!--    <listener class="com.easy.core.listener.MYSMTRunnerEventsListener" topic="com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener" />-->
 <!--    <listener class="com.easy.core.listener.MyProjectTaskListener" topic="com.intellij.task.ProjectTaskListener" />-->
   </projectListeners>
 
-  <application-components>
-    <component>
-      <implementation-class>com.easy.core.ui.component.NyanApplicationComponent</implementation-class>
-    </component>
-  </application-components>
+<!--  <application-components>-->
+<!--    <component>-->
+<!--      <implementation-class>com.easy.core.ui.component.NyanApplicationComponent</implementation-class>-->
+<!--    </component>-->
+<!--  </application-components>-->
 
-  <project-components>
-    <component>
-      <implementation-class>com.easy.core.listener.DocumentListener</implementation-class>
-    </component>
-  </project-components>
+<!--  <project-components>-->
+<!--    <component>-->
+<!--      <implementation-class>com.easy.core.listener.DocumentListener</implementation-class>-->
+<!--    </component>-->
+<!--  </project-components>-->
 
   <actions>
 
