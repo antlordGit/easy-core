@@ -1169,6 +1169,7 @@ public class GeneratorFrame extends JBPanel {
             createPageTs();
             createTableConfig();
             createUpdateTs();
+            createIndex();
         }
     }
 
@@ -1559,7 +1560,7 @@ public class GeneratorFrame extends JBPanel {
                 "    props: [");
 
         for (List<String> strings : colDataList) {
-            if (StringUtils.isNotBlank(strings.get(5)) || "id".equals(strings.get(2))) {
+            if ("id".equals(strings.get(2))) {
                 continue;
             }
             sb.append("\n" +
@@ -1693,6 +1694,121 @@ public class GeneratorFrame extends JBPanel {
             }
         }
 
+    }
+
+    private void createIndex() {
+        String module = nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1);
+        String text = "<script setup lang=\"ts\">\n" +
+                "import CommonEdit from \"@/views/common/commonEdit.vue\";\n" +
+                "import {onMounted} from \"vue\";\n" +
+                "import OperaHeader from \"@/views/common/operaHeader.vue\";\n" +
+                "import {useRoute} from \"vue-router\";\n" +
+                "import CommonTable from \"@/views/common/commonTable.vue\";\n" +
+                "import editForm from '@/hooks/" + module + "/editForm'\n" +
+                "import operaConfig from '@/hooks/" + module + "/operaConfig'\n" +
+                "import tableInfo from \"@/hooks/" + module + "/tableInfo\";\n" +
+                "import {selectChange, sizeChange, currentChange} from \"@/hooks/" + module + "/page\";\n" +
+                "import getData from \"@/hooks/" + module + "/getData\";\n" +
+                "import update from \"@/hooks/" + module + "/update\";\n" +
+                "import add from \"@/hooks/" + module + "/add\";\n" +
+                "\n" +
+                "// 当前路由\n" +
+                "const route = useRoute();\n" +
+                "\n" +
+                "onMounted(()=>{\n" +
+                "    getData();\n" +
+                "})\n" +
+                "\n" +
+                "\n" +
+                "// 表单提交\n" +
+                "const updateEdit = function (formRef: any) {\n" +
+                "    if (!formRef) {\n" +
+                "        return;\n" +
+                "    }\n" +
+                "    formRef.validate((valid, fields) => {\n" +
+                "        if (valid) {\n" +
+                "            // 新增营地\n" +
+                "            if (editForm.action === 'add') {\n" +
+                "                add();\n" +
+                "            } else if (editForm.action === 'update') {\n" +
+                "                update();\n" +
+                "            }\n" +
+                "        } else {\n" +
+                "            console.log('add error!', fields)\n" +
+                "        }\n" +
+                "    });\n" +
+                "};\n" +
+                "\n" +
+                "const setVisible = function (value: boolean) {\n" +
+                "    editForm.visible = value;\n" +
+                "};\n" +
+                "</script>\n" +
+                "\n" +
+                "\n" +
+                "<template>\n" +
+                "\n" +
+                "  <div class=\"body-box\">\n" +
+                "      <div class=\"breadcrumb-box\">\n" +
+                "          <el-breadcrumb separator=\"/\" class=\"breadcrumb\">\n" +
+                "              <el-breadcrumb-item v-for=\"item in route.meta.breadcrumb\">{{ item }}</el-breadcrumb-item>\n" +
+                "          </el-breadcrumb>\n" +
+                "      </div>\n" +
+                "\n" +
+                "<!--      操作栏-->\n" +
+                "      <div class=\"opera-box\">\n" +
+                "          <operaHeader :butList=\"operaConfig.butList\" :formConfig=\"operaConfig\"></operaHeader>\n" +
+                "      </div>\n" +
+                "\n" +
+                "<!--      表格栏-->\n" +
+                "      <div class=\"table-box\">\n" +
+                "          <CommonTable\n" +
+                "              :tableInfo=\"tableInfo\"\n" +
+                "              @selectChange=\"selectChange\"\n" +
+                "              @sizeChange=\"sizeChange\"\n" +
+                "              @currentChange=\"currentChange\">\n" +
+                "          </CommonTable>\n" +
+                "      </div>\n" +
+                "\n" +
+                "<!--      表单栏-->\n" +
+                "      <common-edit :edit-form=\"editForm\" @updateEdit=\"updateEdit\" @closeVisible=\"setVisible\"/>\n" +
+                "  </div>\n" +
+                "</template>\n" +
+                "\n" +
+                "<style scoped lang=\"less\">\n" +
+                "\n" +
+                ".body-box {\n" +
+                "  background-color: #fff;\n" +
+                "  height: 100%;\n" +
+                "  padding: 10px;\n" +
+                "\n" +
+                "  .breadcrumb-box {\n" +
+                "    border-bottom: 1px solid #D8D8D8;\n" +
+                "\n" +
+                "    .breadcrumb {\n" +
+                "      height: 35px;\n" +
+                "      width: 100%;\n" +
+                "      line-height: 35px;\n" +
+                "      color: #B2B3C9;\n" +
+                "    }\n" +
+                "  }\n" +
+                "\n" +
+                "    .opera-box{\n" +
+                "\n" +
+                "    }\n" +
+                "\n" +
+                "    .table-box {\n" +
+                "\n" +
+                "    }\n" +
+                "\n" +
+                "\n" +
+                "}\n" +
+                "</style>\n";
+
+        try {
+            write(text, hooksPath.getText() + "/" + nameSpace.substring(0, 1).toLowerCase() + nameSpace.substring(1) + "/index.vue");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
